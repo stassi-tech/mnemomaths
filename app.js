@@ -8,7 +8,7 @@
 'use strict';
 
 /* Numéro de version affiché à l'écran (bandeau du haut) : à augmenter à chaque modification. */
-const APP_VERSION = 'v2';
+const APP_VERSION = 'v4';
 /* v2 : la case « Écris ta réponse » ne doit plus être prise pour un identifiant par le navigateur
    (Chrome ignore autocomplete="off" pour ses mots de passe : on lui donne une valeur qu'il ne reconnaît pas). */
 
@@ -1514,7 +1514,7 @@ function showQuestion() {
   $('nat-instruction').textContent = q.saisie ? 'Écris ta réponse :' : 'Choisis la bonne réponse :';
   const z = $('mm-zone');
   if (q.saisie) {
-    z.innerHTML = `<div class="mm-saisie"><input id="mm-input" name="mm-reponse-calcul" type="text" inputmode="${q.saisie.h ? 'text' : 'decimal'}" autocomplete="mm-reponse" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore="true" data-bwignore="true" data-form-type="other" aria-label="Ta réponse" placeholder="${q.saisie.h ? '15 h 45' : '?'}" />${q.saisie.unite ? `<span class="mm-unite">${q.saisie.unite}</span>` : ''}</div>
+    z.innerHTML = `<form class="mm-saisie" id="mm-form" autocomplete="off"><input id="mm-input" name="mm-reponse-calcul" type="text" inputmode="${q.saisie.h ? 'text' : 'decimal'}" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore="true" data-bwignore="true" data-form-type="other" aria-label="Ta réponse" placeholder="${q.saisie.h ? '15 h 45' : '?'}" />${q.saisie.unite ? `<span class="mm-unite">${q.saisie.unite}</span>` : ''}</form>
       <p id="mm-indice" class="mm-indice hidden" aria-live="polite"></p>
       <div class="mm-clavier${q.saisie.h ? ' avec-h' : ''}">${touchesClavier(q.saisie.h).map((t) => `<button type="button" class="mm-touche" data-t="${t}">${t}</button>`).join('')}</div>
       <button type="button" class="primary-button mm-valider" id="mm-valider">Valider ✓</button>`;
@@ -1526,7 +1526,16 @@ function showQuestion() {
       else if (t === 'h') inp.value = `${inp.value.trim()} h `;
       else inp.value += t;
     }));
+    /* v4 : comme dans MNEMOGRAM, la case est dans son propre petit formulaire, sans aucun champ de mot de passe :
+       Chrome ne la rattache donc plus au formulaire de connexion et n'y propose plus l'identifiant enregistré. */
+    inp.value = '';
     inp.addEventListener('keydown', (ev) => { if (ev.key === 'Enter') { ev.preventDefault(); valideSaisie(); } });
+    $('mm-form').addEventListener('submit', (ev) => { ev.preventDefault(); valideSaisie(); });
+    /* au cas où un navigateur forcerait malgré tout un remplissage : tout ce qui n'est pas une réponse possible est effacé */
+    const nettoie = () => { if (/[^0-9 h,.]/i.test(inp.value)) inp.value = ''; };
+    inp.addEventListener('input', nettoie);
+    inp.addEventListener('change', nettoie);
+    setTimeout(nettoie, 300);
     $('mm-valider').addEventListener('click', valideSaisie);
     if (window.matchMedia('(hover:hover)').matches) setTimeout(() => inp.focus(), 50);
   } else {
