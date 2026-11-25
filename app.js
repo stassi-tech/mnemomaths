@@ -8,7 +8,9 @@
 'use strict';
 
 /* Numéro de version affiché à l'écran (bandeau du haut) : à augmenter à chaque modification. */
-const APP_VERSION = 'v1';
+const APP_VERSION = 'v2';
+/* v2 : la case « Écris ta réponse » ne doit plus être prise pour un identifiant par le navigateur
+   (Chrome ignore autocomplete="off" pour ses mots de passe : on lui donne une valeur qu'il ne reconnaît pas). */
 
 const $ = (id) => document.getElementById(id);
 const shuffle = (arr) => { const a = arr.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
@@ -1512,7 +1514,7 @@ function showQuestion() {
   $('nat-instruction').textContent = q.saisie ? 'Écris ta réponse :' : 'Choisis la bonne réponse :';
   const z = $('mm-zone');
   if (q.saisie) {
-    z.innerHTML = `<div class="mm-saisie"><input id="mm-input" type="text" inputmode="${q.saisie.h ? 'text' : 'decimal'}" autocomplete="off" spellcheck="false" aria-label="Ta réponse" placeholder="${q.saisie.h ? '15 h 45' : '?'}" />${q.saisie.unite ? `<span class="mm-unite">${q.saisie.unite}</span>` : ''}</div>
+    z.innerHTML = `<div class="mm-saisie"><input id="mm-input" name="mm-reponse-calcul" type="text" inputmode="${q.saisie.h ? 'text' : 'decimal'}" autocomplete="mm-reponse" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore="true" data-bwignore="true" data-form-type="other" aria-label="Ta réponse" placeholder="${q.saisie.h ? '15 h 45' : '?'}" />${q.saisie.unite ? `<span class="mm-unite">${q.saisie.unite}</span>` : ''}</div>
       <p id="mm-indice" class="mm-indice hidden" aria-live="polite"></p>
       <div class="mm-clavier${q.saisie.h ? ' avec-h' : ''}">${touchesClavier(q.saisie.h).map((t) => `<button type="button" class="mm-touche" data-t="${t}">${t}</button>`).join('')}</div>
       <button type="button" class="primary-button mm-valider" id="mm-valider">Valider ✓</button>`;

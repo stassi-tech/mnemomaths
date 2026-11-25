@@ -8,5 +8,9 @@
   "icons": [
     { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
     { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ],
+  "screenshots": [
+    { "src": "captures/capture-ordinateur.png", "sizes": "1300x900", "type": "image/png", "form_factor": "wide", "label": "Lire l'heure sur l'ardoise" },
+    { "src": "captures/capture-telephone.png", "sizes": "390x844", "type": "image/png", "form_factor": "narrow", "label": "MNEMOMATHS sur téléphone" }
   ]
 }
