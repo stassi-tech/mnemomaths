@@ -3,9 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Jeux gratuits pour mémoriser les notions fondamentales de grammaire, dès 7 ans." />
-    <title>MNEMOGRAM — La grammaire à travers la mémoire</title>
+    <meta name="description" content="Jeux gratuits pour mémoriser les notions fondamentales de mathématiques, du CE1 à la 3e." />
+    <title>MNEMOMATHS — Les mathématiques à travers la mémoire</title>
     <meta name="theme-color" content="#9c7a4a" />
+    <!-- MNEMOMATHS v1 : même ossature que MNEMOGRAM (bandeau, ambiances, comptes, scores, bilan) -->
     <!-- v8 : installation comme une application (même méthode que Mnemart) : icône sur l'écran d'accueil,
          ouverture en plein écran sans la barre du navigateur. -->
     <link rel="manifest" href="manifest.json" />
@@ -13,16 +14,15 @@
     <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-title" content="MNEMOGRAM" />
-    <link rel="stylesheet" href="style.css?v=112" />
+    <meta name="apple-mobile-web-app-title" content="MNEMOMATHS" />
+    <link rel="stylesheet" href="style.css?v=1" />
     <!-- Comptes : même service Firebase que Mnemart (connexion par e-mail), chargé en « defer » comme dans Mnemart -->
     <script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
     <script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
     <script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
   </head>
   <body>
-    <!-- Même principe que la mosaïque de Mnemart : 15 cases floutées et pâlies, nettes au survol.
-         Ici pas d'images à télécharger : chaque case est un mot écrit dans la couleur de sa nature. -->
+    <!-- Même principe que la mosaïque de Mnemart : des cases floutées et pâlies, nettes au survol. -->
     <div class="bg-mosaic" aria-hidden="true" id="bg-mosaic"></div>
 
     <div class="topbar-banner" id="global-topbar">
@@ -41,7 +41,7 @@
           <button type="button" class="volume-bar" data-level="5" style="height:22px"></button>
         </div>
         <button type="button" id="global-fullscreen-button" class="global-topbar-button" aria-label="Plein écran" title="Plein écran">⛶</button>
-        <button type="button" id="global-fiche-button" class="global-topbar-button" aria-label="La fiche des natures" title="La fiche des natures">📖</button>
+        <button type="button" id="global-fiche-button" class="global-topbar-button" aria-label="Les fiches aide-mémoire" title="Les fiches aide-mémoire">📖</button>
         <!-- v15 : comme dans Mnemart, l'apparence, puis l'aide et le contact, puis le compte et la sortie de la session -->
         <button type="button" id="global-ambiance-button" class="global-topbar-button" aria-label="Changer l'ambiance" title="Changer l'ambiance">🎨</button>
         <button type="button" id="global-info-button" class="global-topbar-button" aria-label="Comment fonctionne l'application" title="Comment fonctionne l'application">ℹ️</button>
@@ -72,41 +72,40 @@
 
         <!-- ===================== ACCUEIL ===================== -->
         <section id="welcome-panel" class="welcome-panel">
-          <p class="app-brand-name">MNEMOGRAM</p>
-          <p class="eyebrow home-eyebrow">La grammaire à travers la mémoire</p>
-          <h1 class="home-tagline">Apprendre la grammaire en jouant,<br>c'est possible.</h1>
+          <p class="app-brand-name">MNEMOMATHS</p>
+          <p class="eyebrow home-eyebrow">Les mathématiques à travers la mémoire</p>
+          <h1 class="home-tagline">Apprendre les mathématiques en jouant,<br>c'est possible.</h1>
 
           <figure class="home-illustration">
-            <img src="assets/accueil.jpg" alt="La Grammaire apprend à lire à un enfant" />
-            <figcaption>Atelier de Gentile da FABRIANO, <em>La Grammaire</em> (salle des Arts libéraux), 1412 environ, Palazzo Trinci, Foligno.</figcaption>
+            <img src="assets/accueil.jpg" alt="L'Arithmétique, figure allégorique, tient une tablette de chiffres" onerror="this.closest('figure').style.display='none'" />
+            <figcaption>Laurent de LA HYRE, <em>Allégorie de l'Arithmétique</em>, 1650 environ, Walters Art Museum, Baltimore.</figcaption>
           </figure>
 
-          <p class="intro-banner">Maître Bonaccord et Dame Virgule t'attendent pour t'apprendre à reconnaître les mots de la langue française. Attention : Maître Rature et Dame Gribouille, eux, guettent la moindre erreur… Mais ils ne sont pas si méchants : ils veulent seulement que tu réussisses !</p>
+          <p class="intro-banner">Maître Compas et Dame Équerre t'attendent pour t'apprendre à compter, à calculer, à mesurer et à construire. Attention : Maître Retenue et Dame Bévue, eux, guettent la moindre erreur… Mais ils ne sont pas si méchants : ils veulent seulement que tu réussisses !</p>
 
           <div class="home-mode-buttons">
-            <!-- v38 : trois parties ; « Les mots » ouvre une deuxième page d'accueil avec ses six exercices -->
-            <!-- v60 : les quatre niveaux, au-dessus des trois parties -->
+            <!-- les quatre niveaux, au-dessus des trois domaines du programme -->
             <div class="home-classes" id="home-classes" role="tablist" aria-label="Niveau"></div>
             <p class="home-classes-note" id="home-classes-note"></p>
             <div class="home-games-row home-parties" id="home-parties">
-              <button type="button" class="home-mode-button home-partie" data-partie="mots"><span class="label"><strong>Les mots</strong></span></button>
-              <button type="button" class="home-mode-button home-partie" data-partie="temps"><span class="label"><strong>Les temps et les modes</strong></span></button>
-              <button type="button" class="home-mode-button home-partie" data-partie="phrase"><span class="label"><strong>La phrase</strong></span></button>
+              <button type="button" class="home-mode-button home-partie" data-partie="nombres"><span class="label"><strong>Nombres et calculs</strong></span></button>
+              <button type="button" class="home-mode-button home-partie" data-partie="grandeurs"><span class="label"><strong>Grandeurs et mesures</strong></span></button>
+              <button type="button" class="home-mode-button home-partie" data-partie="geometrie"><span class="label"><strong>Espace et géométrie</strong></span></button>
             </div>
-            <div class="home-section hidden" id="home-mots">
-              <h2 class="home-section-title">Les mots</h2>
-              <div class="home-games-row" data-liste="mots"></div>
-              <button type="button" class="link-label home-retour" data-partie="">← Revenir aux trois parties</button>
+            <div class="home-section hidden" id="home-nombres">
+              <h2 class="home-section-title">Nombres et calculs</h2>
+              <div class="home-games-row" data-liste="nombres"></div>
+              <button type="button" class="link-label home-retour" data-partie="">← Revenir aux trois domaines</button>
             </div>
-            <div class="home-section hidden" id="home-temps">
-              <h2 class="home-section-title">Les temps et les modes</h2>
-              <div class="home-games-row" data-liste="temps"></div>
-              <button type="button" class="link-label home-retour" data-partie="">← Revenir aux trois parties</button>
+            <div class="home-section hidden" id="home-grandeurs">
+              <h2 class="home-section-title">Grandeurs et mesures</h2>
+              <div class="home-games-row" data-liste="grandeurs"></div>
+              <button type="button" class="link-label home-retour" data-partie="">← Revenir aux trois domaines</button>
             </div>
-            <div class="home-section hidden" id="home-phrase">
-              <h2 class="home-section-title">La phrase</h2>
-              <div class="home-games-row" data-liste="phrase"></div>
-              <button type="button" class="link-label home-retour" data-partie="">← Revenir aux trois parties</button>
+            <div class="home-section hidden" id="home-geometrie">
+              <h2 class="home-section-title">Espace et géométrie</h2>
+              <div class="home-games-row" data-liste="geometrie"></div>
+              <button type="button" class="link-label home-retour" data-partie="">← Revenir aux trois domaines</button>
             </div>
             <!-- Bloc compte, repris de Mnemart : libellé + e-mail + interrupteur connecté/déconnecté -->
             <div class="home-mode-button account-hub-slot" id="home-account-slot" role="button" tabindex="0">
@@ -125,45 +124,31 @@
         <!-- ===================== JEU 1 : RECONNAISSANCE DES NATURES ===================== -->
         <section id="natures-panel" class="quiz-panel hidden">
           <div class="progress-row">
-            <span><span class="quiz-reference" id="nat-game-title">Reconnaissance des natures de mots 1</span> — <span id="nat-progress-label">Question 1 / 10</span></span>
+            <span><span class="quiz-reference" id="nat-game-title">MNEMOMATHS</span> — <span id="nat-progress-label">Question 1 / 10</span></span>
             <span id="nat-score-label" class="score-summary-highlight">0 bonne réponse</span>
           </div>
           <div class="progress-track"><div class="progress-bar" id="nat-progress-bar"></div></div>
 
           <div id="nat-ready-screen" class="ready-screen">
             <div class="ready-card">
-              <p class="ready-explanation" id="nat-ready-explanation">Dans chaque phrase, un mot clignote. Trouve sa <strong>nature</strong> parmi les boutons verts. Si tu te trompes, tu as droit à un deuxième essai.</p>
+              <p class="ready-explanation" id="nat-ready-explanation"></p>
               <p class="ready-title">Ce jeu t'attend.</p>
-              <div id="nat-texte-choix" class="texte-choix hidden"></div>
               <button type="button" class="primary-button" id="nat-start-button">Démarrer le jeu →</button>
             </div>
           </div>
 
           <div class="quiz-grid hidden" id="nat-quiz-grid">
             <div class="artwork-column">
-              <div class="illus illus-m hidden" id="nat-illus-m" aria-hidden="true"></div>
               <figure class="artwork-card sentence-card" id="nat-sentence-card">
-                <p class="sentence" id="nat-sentence"></p>
-                <button type="button" class="listen-button" id="nat-listen-button" title="Écouter la phrase">🔊 Écouter la phrase</button>
+                <p class="sentence mm-ardoise" id="nat-sentence"></p>
+                <button type="button" class="listen-button" id="nat-listen-button" title="Écouter la question">🔊 Écouter la question</button>
                 <div class="character-stage" id="nat-character-stage" aria-live="polite"></div>
               </figure>
             </div>
-            <section class="answer-card" aria-label="Natures">
-              <div class="illus illus-d hidden" id="nat-illus"></div>
-              <h2 id="nat-instruction">Quelle est la nature du mot qui clignote ?</h2>
-              <div class="answer-columns">
-                <div class="nature-column" id="nat-nature-column">
-                  <p class="nature-group-title" id="nat-title-variables">Mots variables</p>
-                  <div class="nature-buttons" id="nat-buttons-variables"></div>
-                  <p class="nature-group-title" id="nat-title-invariables">Mots invariables</p>
-                  <div class="nature-buttons" id="nat-buttons-invariables"></div>
-                </div>
-                <!-- v15 : jeu 3, la colonne des fonctions (boutons rouges), qui apparaît quand la nature est trouvée -->
-                <div class="fonction-column hidden" id="nat-fn-column">
-                  <p class="nature-group-title fonction-title">Fonctions</p>
-                  <div class="nature-buttons" id="nat-buttons-fonctions"></div>
-                </div>
-              </div>
+            <section class="answer-card" aria-label="Ta réponse">
+              <h2 id="nat-instruction">Écris ta réponse :</h2>
+              <!-- la zone de réponse : une case à remplir avec son clavier, ou des boutons à choisir -->
+              <div id="mm-zone"></div>
               <div id="nat-correction" class="hidden">
                 <div class="correction-details" id="nat-correction-details"></div>
                 <div class="verdict-row">
@@ -196,13 +181,11 @@
       <div class="modal-card">
         <button type="button" class="modal-close-x" id="fiche-close" aria-label="Fermer" title="Fermer">✕</button>
         <div class="fiche-tabs" id="fiche-tabs">
-          <button type="button" class="fiche-tab on" data-fiche="fiche-nature.html">Fiche nature des mots</button>
-          <button type="button" class="fiche-tab" data-fiche="fiche-fonction.html">Fiche fonction des mots</button>
-          <button type="button" class="fiche-tab" data-fiche="fiche-temps.html">Fiche temps et modes</button>
-          <button type="button" class="fiche-tab" data-fiche="fiche-phrase.html">Fiche phrase et propositions</button>
-          <button type="button" class="fiche-tab" data-fiche="fiche-transformations.html">Fiche transformations de phrase</button>
+          <button type="button" class="fiche-tab on" data-fiche="fiche-nombres.html">Fiche nombres et calculs</button>
+          <button type="button" class="fiche-tab" data-fiche="fiche-grandeurs.html">Fiche grandeurs et mesures</button>
+          <button type="button" class="fiche-tab" data-fiche="fiche-geometrie.html">Fiche espace et géométrie</button>
         </div>
-        <iframe id="fiche-frame" class="fiche-frame" title="La fiche des natures"></iframe>
+        <iframe id="fiche-frame" class="fiche-frame" title="Les fiches aide-mémoire"></iframe>
       </div>
     </div>
 
@@ -250,10 +233,10 @@
           <summary>Mes données : effacer mes scores ou supprimer mon compte</summary>
           <div class="mes-donnees-body">
             <button type="button" class="secondary-button" id="data-del-scores">Effacer tous mes scores</button>
-            <button type="button" class="secondary-button" id="data-del-mnemogram">Effacer mes données MNEMOGRAM (fiche, photos, proches, scores)</button>
-            <button type="button" class="danger-button" id="data-del-account">Supprimer mon compte (MNEMOGRAM et MNEMART)</button>
+            <button type="button" class="secondary-button" id="data-del-mnemomaths">Effacer mes données MNEMOMATHS (fiche, photos, proches, scores)</button>
+            <button type="button" class="danger-button" id="data-del-account">Supprimer mon compte (MNEMOMATHS, MNEMOGRAM et MNEMART)</button>
             <div class="hidden data-del-account-box" id="data-del-account-box">
-              <p>Le compte est commun à MNEMOGRAM et MNEMART : le supprimer efface toutes les données des deux sites et l'accès à vos deux espaces. Pour confirmer, écrivez votre mot de passe :</p>
+              <p>Le compte est commun à MNEMOMATHS, MNEMOGRAM et MNEMART : le supprimer efface toutes les données des trois sites et l'accès à vos trois espaces. Pour confirmer, écrivez votre mot de passe :</p>
               <input type="password" id="data-password" autocomplete="current-password" />
               <button type="button" class="danger-button" id="data-del-account-confirm">Supprimer définitivement mon compte</button>
             </div>
@@ -268,7 +251,7 @@
       <div class="modal-card legal-card">
         <button type="button" class="modal-close-x" data-close="mentions-modal" aria-label="Fermer" title="Fermer">✕</button>
         <h2>Mentions légales</h2>
-        <p>© 2026 MNEMART, Tours, France. Contenu original : les phrases d'exemple, les explications, les jeux et les personnages ne peuvent être ni reproduits ni réutilisés sans autorisation.</p>
+        <p>© 2026 MNEMART, Tours, France. Contenu original : les exercices, les explications, les figures, les jeux et les personnages ne peuvent être ni reproduits ni réutilisés sans autorisation.</p>
         <p>Site à but non commercial, sans publicité, proposé à titre personnel et éducatif.</p>
         <p>Les images de la page d'accueil sont issues de Wikimedia Commons et sont utilisées sous leurs licences respectives (domaine public ou Creative Commons selon les fichiers). Les sorciers sont des dessins originaux.</p>
         <p>Les informations d'un compte (prénoms, photos, adresses e-mail, scores) ne sont visibles que par ce compte et servent seulement au jeu. Chacun peut les effacer lui-même, et supprimer son compte, dans 👤 Mon compte, rubrique « Mes données ».</p>
@@ -289,36 +272,36 @@
       <div class="modal-card legal-card info-card">
         <button type="button" class="modal-close-x" data-close="info-modal" aria-label="Fermer" title="Fermer">✕</button>
         <h2>Comment fonctionne l'application</h2>
-        <p>MNEMOGRAM aide à mémoriser les notions fondamentales de la grammaire en jouant, dès 7 ans. Elle fonctionne sur ordinateur, tablette et smartphone.</p>
-        <h3>Les jeux</h3>
+        <p>MNEMOMATHS aide à mémoriser les notions fondamentales des mathématiques en jouant, du CE1 à la 3e, en suivant la progression des programmes officiels. Elle fonctionne sur ordinateur, tablette et smartphone.</p>
+        <h3>Les niveaux et les trois domaines</h3>
+        <p>En haut de l'accueil, quatre onglets : CE1 – CE2, CM1 – CM2, 6e – 5e, 4e – 3e. Sous les onglets, les trois domaines du programme : <b>Nombres et calculs</b>, <b>Grandeurs et mesures</b>, <b>Espace et géométrie</b>. Chaque domaine propose des exercices, une notion à la fois, puis un <b>bilan</b> qui mélange tout. Les exercices marqués « bientôt » sont prévus par le programme et arriveront dans les prochaines versions.</p>
+        <h3>Les exercices</h3>
         <ul>
-          <li><b>Reconnaissance des natures de mots 1</b> : un mot clignote dans une phrase ; on choisit sa nature parmi les boutons verts (nom commun, verbe d'état ou d'action, adjectif qualificatif, déterminant, pronom, nom propre, adverbe, préposition, conjonctions, interjection, onomatopée).</li>
-          <li><b>Reconnaissance des natures de mots 2</b> : la même chose, mais le déterminant et le pronom se divisent chacun en sept sortes (article défini ou indéfini, possessif, démonstratif, numéral, indéfini, interrogatif, personnel, relatif). Les déterminants et les pronoms de même sorte sont alignés l'un au-dessus de l'autre, et des phrases « pièges » les mettent côte à côte (« mon chien… le mien »).</li>
-          <li><b>Bilan sans guide : remplis le tableau seul</b> : les mêmes tableaux, mais sans consignes. On appuie sur une case, on choisit sa nature (et sa sorte précise pour un déterminant ou un pronom), puis sa fonction, et l'on appuie sur le mot dont elle dépend (le verbe, le sujet ou le nom). On peut revenir sur une case autant qu'on veut. À la fin, « Corriger mon tableau » note chaque case : 0,5 point pour la nature, 0,5 point pour la fonction ; les cases justes passent en vert, les cases à moitié justes en orange, les autres en rouge, avec la bonne réponse écrite dessous.</li>
-          <li><b>Bilan : le tableau des vingt cases</b> : un texte réparti dans un tableau de vingt cases. On le remplit en suivant la méthode des jeux précédents : d'abord les verbes (et leur nature), puis le sujet de chaque verbe, puis ses compléments (COD, COS, COI, attribut), puis, verbe par verbe, les circonstances (« Le professeur a organisé une discussion » : où ? quand ? comment ? pourquoi ?) ; ensuite les groupes nominaux (déterminants, adjectifs, compléments du nom) ; enfin les mots invariables. Tant que tous les verbes ne sont pas trouvés, on n'avance pas, et ainsi de suite. Chaque case vaut 1 point, en deux moitiés : 0,5 point pour trouver le mot (avec sa fonction s'il en a une), 0,5 point pour sa nature ; une erreur dans une moitié, et elle vaut zéro, même si la bonne réponse est trouvée ensuite. 20 points en tout. Il y a cinq tableaux, tirés au hasard.</li>
-          <li><b>Natures et fonctions des mots dans le groupe verbal</b> : il marche comme le jeu du groupe nominal. Des <b>consignes</b> apparaissent à droite, vertes pour la nature, rouges pour la fonction : « Dans cette phrase, appuie sur le verbe » et sa nature (verbe d'action ou d'état) ; « Cette phrase est une phrase de récit qui raconte un événement. Quel mot a la fonction sujet du verbe « marcher » ? Qui est-ce qui marche ? Appuie sur le mot qui a la fonction sujet. » puis sa nature (nom, nom propre, pronom, et le type de pronom) ; « Le verbe a-t-il un COD ? » (puis un COS, ou un COI ; pour un verbe d'état : « Le sujet « Paul » est-il décrit par un attribut ? ») ; « Le verbe a-t-il un complément circonstanciel ? », sa sorte (lieu, temps, manière, cause) et sa nature (nom, pronom, adverbe…). On répond en appuyant sur le mot dans la phrase, ou sur les cases. Chaque réponse se pose sous le mot : carré vert pour la nature, carré rouge pour la fonction (« COD du verbe mange »). À la fin, la voix fait le bilan de la phrase : avec un verbe d'état, c'est une <b>phrase de description</b> (le sujet est ce que l'on décrit, l'attribut lui donne une qualité) ; avec un verbe d'action, c'est une <b>phrase de récit</b> (elle raconte un événement : le sujet en est l'acteur, l'action porte sur un objet, le COD, le COI ou le COS). Une partie compte 10 phrases ; chaque phrase vaut 1 point, partagé entre toutes les réponses trouvées du premier coup.</li>
-          <li><b>Natures et fonctions des mots dans le groupe nominal</b> (à l'essai) : chaque phrase est réduite à un seul groupe nominal, sans verbe : les petits points « (…) » montrent que la phrase continue (« Joyeux, le bébé (…) »). À droite, des <b>consignes</b> apparaissent l'une après l'autre, <b>vertes</b> pour une question de nature, <b>rouges</b> pour une question de fonction : « Appuie sur le nom commun dans ce groupe nominal », « Appuie maintenant sur le déterminant », « Quelle est la nature précise de ce déterminant ? », « Le nom est-il décrit par un adjectif qualificatif ? » (oui ou non, puis sa fonction : épithète ou apposé ; l'attribut reste pour le groupe verbal), « Le nom est-il décrit par un mot qui a la fonction complément du nom ? » (oui ou non, puis sa nature). On répond en appuyant sur le mot dans la phrase, ou sur les cases de la consigne. Les mots ne changent pas de couleur : chaque réponse se pose sous le mot, dans un <b>carré vert</b> pour une nature et un <b>carré rouge</b> pour une fonction (sous « blanc » : « adjectif qualificatif » en vert, puis « épithète du nom chien » en rouge). Les consignes et les fonctions nomment toujours le nom précis : « le nom « souris » est-il décrit par un autre adjectif qualificatif ? », « épithète du nom souris », « complément du nom chien », pour que l'enfant ne confonde plus nature et fonction. Quand le nom a un complément du nom, on analyse ensuite le groupe de ce nom-là, avec les mêmes questions (dans « le chien blanc du voisin » : « voisin » a-t-il un déterminant ? oui, « du », article défini contracté, de + le ; un adjectif ? un complément du nom ?). À la fin, la voix fait le bilan du groupe nominal en un petit discours : « Tu as bien analysé le groupe nominal du nom souris. Le nom souris est d'abord précisé par un déterminant, l'article indéfini « une », qui n'a pas de fonction. Ensuite, il est décrit par deux adjectifs qualificatifs qui ont la fonction épithète : le premier est « petite », le second est « grise ». » Une partie compte 10 phrases ; chaque phrase vaut 1 point, partagé entre toutes les réponses trouvées du premier coup.</li>
+          <li><b>Les questions changent à chaque partie</b> : elles sont fabriquées au moment où l'on appuie sur « Démarrer le jeu ». On peut donc rejouer autant qu'on veut, et les questions deviennent de plus en plus difficiles au fil de la partie (au CE1 – CE2 : niveau CE1 au début, niveau CE2 à la fin).</li>
+          <li><b>Écrire la réponse</b> : on la tape au clavier, ou avec les touches de l'écran, puis on appuie sur « Valider » (ou sur Entrée). On peut écrire « 3452 » ou « 3 452 », « 4,50 » ou « 4.5 ». Pour une heure, on écrit par exemple « 15 h 45 ».</li>
+          <li><b>Choisir la réponse</b> : on appuie sur le bon bouton. Pour les figures, il faut choisir le nom le plus précis : si l'on répond « rectangle » pour un carré, le sorcier dit que c'est vrai mais qu'il existe un nom plus précis, sans compter d'erreur.</li>
+          <li><b>Les figures</b> (horloges, fractions, pièces et billets, polygones, solides, quadrillages) sont dessinées à la craie sur l'ardoise.</li>
         </ul>
-        <p>Une partie compte 20 questions. En cas d'erreur, on a droit à un deuxième essai ; après deux erreurs, la bonne réponse s'affiche. Le score compte les réponses trouvées du premier coup (dans le jeu des fonctions : 0,5 point pour la nature et 0,5 point pour la fonction, soit 1 point par phrase). Après chaque réponse, une explication apparaît sous les boutons ; la voix la lit.</p>
+        <p>Une partie compte 10 questions (12 ou 14 pour un bilan). En cas d'erreur, on a droit à un deuxième essai ; après deux erreurs, la bonne réponse s'affiche. Le score compte les réponses trouvées du premier coup. Après chaque réponse, une explication apparaît (comment faire le calcul, une astuce pour retenir) ; la voix la lit.</p>
         <h3>Le bandeau du haut</h3>
         <ul>
-          <li>← revenir à la page précédente (ou fermer la fenêtre ouverte) · 🏠 retour à l'accueil · barres : volume de la voix (le bouton 🔊 sous la phrase la fait lire) · ⛶ plein écran</li>
-          <li>📖 les deux fiches : « Fiche nature des mots » et « Fiche fonction des mots » (avec la question à se poser pour chaque fonction), à relire à tout moment · 🎨 l'ambiance (les couleurs du site)</li>
+          <li>← revenir à la page précédente (ou fermer la fenêtre ouverte) · 🏠 retour à l'accueil · barres : volume de la voix (le bouton 🔊 sous l'ardoise fait lire la question) · ⛶ plein écran</li>
+          <li>📖 les trois fiches aide-mémoire (nombres et calculs, grandeurs et mesures, espace et géométrie), à relire à tout moment · 🎨 l'ambiance (les couleurs du site)</li>
           <li>ℹ️ cette aide · ✉️ le contact · 👤 mon compte · 🚪 quitter la session (fin de la partie et déconnexion, pour laisser la place à un autre joueur)</li>
         </ul>
         <h3>Le compte</h3>
-        <p>Le compte n'est pas obligatoire pour jouer, mais il garde les scores. Il est commun avec MNEMART : la même adresse e-mail et le même mot de passe servent pour les deux sites. Un compte d'enfant est créé par un adulte. La fiche du compte contient :</p>
+        <p>Le compte n'est pas obligatoire pour jouer, mais il garde les scores. Il est commun avec MNEMOGRAM et MNEMART : la même adresse e-mail et le même mot de passe servent pour les trois sites. Un compte d'enfant est créé par un adulte. La fiche du compte contient :</p>
         <ul>
           <li><b>le joueur</b> : prénom, nom et, si l'on veut, une photo ;</li>
           <li><b>des proches</b>, facultatifs (papa, maman, papi, mamie…) : lien, prénom, photo et adresse e-mail ;</li>
-          <li><b>l'option « Les sorciers encouragent le joueur »</b>, plutôt réservée aux enfants : quatre sorciers apparaissent après chaque réponse, et les prénoms servent à personnaliser leurs encouragements (« Joseph, tu es un génie de la grammaire ! », « Ton papa Marc sera fier de toi ! ») ; décochée, seule l'explication s'affiche ;</li>
+          <li><b>l'option « Les sorciers encouragent le joueur »</b>, plutôt réservée aux enfants : quatre sorciers apparaissent après chaque réponse, et les prénoms servent à personnaliser leurs encouragements (« Joseph, tu es un génie des mathématiques ! », « Ton papa Marc sera fier de toi ! ») ; décochée, seule l'explication s'affiche ;</li>
           <li><b>l'option « Envoyer les résultats par e-mail »</b> : elle permet d'envoyer aux proches les scores (la liste des dernières parties) ou le bilan de progression (le résumé), par Gmail ou par la messagerie de l'appareil ; le message s'ouvre déjà écrit, il ne reste qu'à cliquer sur « Envoyer ».</li>
         </ul>
         <h3>Les scores et le bilan</h3>
-        <p>Dans 👤 Mon compte : la liste des derniers scores (chacun peut être effacé avec ✕) et le <b>bilan de progression</b>, un petit diplôme qui montre les natures bien connues, celles à revoir et les confusions les plus fréquentes ; il s'imprime ou s'enregistre en PDF.</p>
+        <p>Dans 👤 Mon compte : la liste des derniers scores (chacun peut être effacé avec ✕) et le <b>bilan de progression</b>, un petit diplôme qui montre la réussite à chaque exercice, les notions bien connues et celles à revoir ; il s'imprime ou s'enregistre en PDF.</p>
         <h3>Mes données</h3>
-        <p>En bas de Mon compte, la rubrique « Mes données » permet d'effacer soi-même tous ses scores, toutes ses données MNEMOGRAM, ou de supprimer son compte (pour MNEMOGRAM et MNEMART).</p>
-        <h3>Installer MNEMOGRAM comme une application</h3>
+        <p>En bas de Mon compte, la rubrique « Mes données » permet d'effacer soi-même tous ses scores, toutes ses données MNEMOMATHS, ou de supprimer son compte (pour MNEMOMATHS, MNEMOGRAM et MNEMART).</p>
+        <h3>Installer MNEMOMATHS comme une application</h3>
         <p>Sur iPhone : dans Safari, bouton Partager, puis « Sur l'écran d'accueil ». Sur ordinateur, dans Chrome : l'icône d'installation à droite de la barre d'adresse.</p>
       </div>
     </div>
@@ -333,21 +316,6 @@
       <div id="report-send" class="report-send no-print"></div>
     </div>
 
-    <!-- v76 : les textes des exercices, fabriqués par l'atelier à partir des fichiers Word (s'ils manquent, l'application garde ses textes) -->
-    <script defer src="illustrations.js?v=112"></script>
-    <script defer src="illus-ce.js?v=112"></script>
-    <script defer src="textes-ce-mots.js?v=112"></script>
-    <script defer src="textes-ce-temps.js?v=112"></script>
-    <script defer src="textes-ce-phrase.js?v=112"></script>
-    <script defer src="textes-cm-mots.js?v=112"></script>
-    <script defer src="textes-cm-temps.js?v=112"></script>
-    <script defer src="textes-cm-phrase.js?v=112"></script>
-    <script defer src="textes-65-mots.js?v=112"></script>
-    <script defer src="textes-65-temps.js?v=112"></script>
-    <script defer src="textes-65-phrase.js?v=112"></script>
-    <script defer src="textes-43-phrase.js?v=112"></script>
-    <script defer src="textes-43-mots.js?v=112"></script>
-    <script defer src="textes-43-temps.js?v=112"></script>
-    <script defer src="app.js?v=112"></script>
+    <script defer src="app.js?v=1"></script>
   </body>
 </html>
