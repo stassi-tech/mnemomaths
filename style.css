@@ -877,75 +877,15 @@ body[data-ambiance] .home-mode-button .desc { color:inherit; opacity:.85; }
   .illus-m:not(.hidden) { display:block; margin:0; padding:8px 8px 0; background:var(--paper); }
 }
 
-/* ============================================================
-   MNEMOMATHS v1 : l'ardoise des maths, la case de réponse et son clavier, les choix,
-   les fractions, les opérations posées et le tableau des nombres.
-   ============================================================ */
-.mm-ardoise { display:flex; flex-direction:column; align-items:center; gap:16px; width:100%; font-family:"Comic Sans MS","Chalkboard SE",cursive; }
-.mm-enonce { display:block; font-size:clamp(1.3rem,2.6vw,2.2rem); line-height:1.45; }
-.mm-enonce strong { color:#ffe066; font-weight:700; }
-.mm-pb { display:block; font-size:clamp(1.15rem,2.1vw,1.75rem); text-align:left; line-height:1.55; }
-.mm-lettres { display:inline-block; margin-top:8px; color:#ffe066; font-style:italic; }
-.mm-trou { display:inline-block; min-width:1.6em; border-bottom:3px dashed #ff9ec7; color:#ff9ec7; text-align:center; }
-.mm-figure { display:block; width:100%; }
-.mm-svg { width:min(100%,460px); height:auto; max-height:44vh; display:block; margin:0 auto; overflow:visible; }
-.mm-fleches { letter-spacing:.25em; color:#9be59b; font-weight:700; white-space:nowrap; }
-.mm-ico-txt { color:#ffe066; }
-.frac { display:inline-flex; flex-direction:column; align-items:center; vertical-align:middle; line-height:1.05; margin:0 .15em; font-weight:700; }
-.frac > span:first-child { border-bottom:2px solid currentColor; padding:0 .25em 1px; }
-.frac > span:last-child { padding-top:1px; }
-/* les sorciers restent petits pour ne pas cacher la figure */
-.character-stage .character { height:min(250px,32vh); }
-.character-stage .bubble { font-size:1rem; max-width:260px; }
+/* v111 : sous le mot trouvé (« trouver les noms… »), l'étiquette : nature en vert, fonction en rouge */
+.tv-mot.tv-etiq { display:inline-flex; flex-direction:column; align-items:center; vertical-align:top; }
+.tv-labs { display:flex; flex-direction:column; align-items:center; gap:2px; margin-top:2px; }
+.tv-lab { font-family:Arial,sans-serif; font-size:.42em; font-weight:bold; line-height:1.3; color:#fff; background:var(--nat-green, #2e8b57); border-radius:4px; padding:1px 5px; white-space:nowrap; font-style:normal; }
+.tv-lab.rouge { background:#c0392b; }
+.tv-lab.bleu { background:#2f5fb3; }
 
-/* la zone de réponse (à droite) */
-.mm-saisie { display:flex; align-items:center; gap:10px; }
-.mm-saisie input { flex:1; min-width:0; font:700 1.9rem Arial,sans-serif; text-align:center; padding:10px 8px; border:3px solid var(--nat-green-dark); border-radius:10px; background:#fff; color:var(--ink); }
-.mm-saisie input:focus { outline:3px solid #ffe066; outline-offset:2px; }
-.mm-saisie input.juste { border-color:var(--ok); background:#e3f6ea; color:var(--ok); }
-.mm-saisie input.montree { border-color:var(--wrong); background:#fbe9e7; color:var(--wrong); }
-.mm-unite { font:700 1.3rem Arial,sans-serif; color:var(--accent-dark); white-space:nowrap; }
-.secoue { animation:mm-secoue .4s; }
-@keyframes mm-secoue { 0%, 100% { transform:translateX(0); } 25% { transform:translateX(-9px); } 75% { transform:translateX(9px); } }
-.mm-clavier { display:grid; grid-template-columns:repeat(3,1fr); gap:7px; margin:14px 0 12px; }
-.mm-clavier.avec-h .mm-touche:last-child { grid-column:1 / -1; }
-.mm-touche { padding:11px 0; font:700 1.35rem Arial,sans-serif; border:2px solid var(--border); border-radius:8px; background:#fff; color:var(--ink); cursor:pointer; }
-.mm-touche:active { transform:scale(.96); }
-@media (hover:hover) { .mm-touche:hover:not(:disabled) { border-color:var(--nat-green); background:#f1faf3; } }
-.mm-touche:disabled { opacity:.5; cursor:default; }
-.mm-valider { width:100%; font-size:1.1rem; }
-.mm-indice { font-family:Arial,sans-serif; font-size:.95rem; color:var(--wrong); margin:10px 0 0; line-height:1.4; }
-.mm-choix { gap:8px; margin-top:6px; }
-.mm-choix.deux { grid-template-columns:1fr 1fr; }
-.mm-choix .nature-button { display:flex; align-items:center; gap:10px; font-size:1.08rem; padding:12px 14px; line-height:1.3; }
-.mm-choix.deux .nature-button { justify-content:center; text-align:center; }
-.mm-signe { font-size:1.7rem; min-width:1.1em; text-align:center; line-height:1; }
-.mm-petit { font-weight:400; font-size:.86em; opacity:.92; }
-.mm-ico { width:54px; height:34px; flex:0 0 auto; background:#fff; border-radius:6px; padding:2px; }
-.verdict-square.half { background:#e6a23c; }
-
-/* dans les explications : l'opération posée et le tableau des nombres */
-.op-posee { font-family:"Courier New",monospace; font-size:1.2rem; font-weight:700; border-collapse:collapse; margin:8px 0 10px; }
-.op-posee td { width:1.05em; text-align:center; padding:0 1px; }
-.op-posee .op-signe { color:var(--accent-dark); }
-.op-ret td { font-size:.72rem; color:var(--wrong); height:.9em; }
-.op-trait td { border-top:2px solid var(--ink); padding:0; height:3px; }
-.tab-num { border-collapse:collapse; margin:8px 0 10px; font-family:Arial,sans-serif; }
-.tab-num th, .tab-num td { border:1px solid var(--accent); padding:3px 9px; text-align:center; }
-.tab-num th { font-size:.72rem; font-weight:400; color:var(--muted); }
-.tab-num td { font-size:1.15rem; font-weight:700; }
-.tab-num .on { background:#ffe9a3; color:var(--ink); }
-.correction-details .frac { font-size:1.05em; }
-
-@media (max-width:900px) {
-  .mm-svg { max-height:36vh; }
-  .character-stage .character { height:min(170px,22vh); }
-}
-@media (max-width:640px) {
-  .mm-choix.deux { grid-template-columns:1fr; }
-  .mm-touche { padding:9px 0; font-size:1.2rem; }
-  .mm-saisie input { font-size:1.5rem; }
-}
-/* la mosaïque : le portrait de Luca Pacioli au centre, sur deux cases */
-.bg-tile.bg-centre { grid-column:2 / 4; grid-row:2; }
-@media (max-width:640px) { .bg-tile.bg-centre { grid-column:2; grid-row:2 / 4; } }
+/* v111 : les flèches d'accord, au-dessus du texte, de celui qui commande vers la marque ajoutée */
+#nat-sentence .tm-texte { position:relative; }
+.acc-fleches { position:absolute; left:0; top:0; pointer-events:none; overflow:visible; }
+.acc-fleches path { fill:none; stroke:#7fdcff; stroke-width:2.2; }
+.acc-fin { color:#fff; text-decoration:underline; text-decoration-color:#7fdcff; text-underline-offset:3px; }
