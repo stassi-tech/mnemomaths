@@ -7,12 +7,14 @@
    ============================================================ */
 'use strict';
 
-/* Numéro de version affiché à l'écran (bandeau du haut) : à augmenter à chaque modification. */
-const APP_VERSION = 'v7';
+/* Numéro de version affiché à l'écran (bandeau du haut) : à augmenter à chaque modification.
+   v9 : après une erreur, le sorcier s'efface au bout de 3 secondes (ou dès qu'on répond) pour laisser voir la figure. */
+const APP_VERSION = 'v9';
 /* v2 à v4 : la case « Écris ta réponse » n'est plus prise pour un identifiant par le navigateur.
    v5 : les exercices du CM1 – CM2, et un quiz de cours à la fin de chaque domaine (CE et CM).
    v6 : les exercices et les quiz de cours du 6e – 5e (relatifs, calcul littéral, π, statistiques, probabilités, symétrie centrale…).
-   v7 : le 4e – 3e (puissances, identités remarquables, équations, fonctions, Pythagore, Thalès, trigonométrie, homothéties…) : tout le programme est construit. */
+   v7 : le 4e – 3e (puissances, identités remarquables, équations, fonctions, Pythagore, Thalès, trigonométrie, homothéties…) : tout le programme est construit.
+   v8 : utilisable hors connexion (sw.js garde une copie de l'application ; les scores attendent le retour d'internet). */
 
 const $ = (id) => document.getElementById(id);
 const shuffle = (arr) => { const a = arr.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
@@ -3418,7 +3420,9 @@ function showQuestion() {
   const q = game.questions[game.index];
   game.essais = 0; game.repondu = false;
   $('nat-sentence').innerHTML = `<span class="mm-enonce">${nbspFr(q.enonce)}</span>${q.figure ? `<span class="mm-figure">${q.figure}</span>` : ''}`;
+  clearTimeout(minuteurSorcier);
   $('nat-character-stage').innerHTML = '';
+  $('nat-character-stage').classList.remove('part');
   $('nat-correction').classList.add('hidden');
   $('nat-verdict-square').className = 'verdict-square';
   $('nat-instruction').textContent = q.saisie ? 'Écris ta réponse :' : 'Choisis la bonne réponse :';
@@ -3491,8 +3495,23 @@ function erreur(choisie) {
   const q = game.questions[game.index];
   if (game.essais === 0) game.erreurs.push({ question: q.court || voixMaths(q.voix || q.enonce).slice(0, 90), bonne: q.rep, choisie, notion: q.notion });
   game.essais += 1;
-  if (game.essais < 2) showCharacter('bad');
+  if (game.essais < 2) { showCharacter('bad'); retireSorcier(3000); }
 }
+/* Le sorcier se place sur le tableau, par-dessus la figure (thermomètre, schéma…). Après une erreur, le joueur
+   doit la revoir pour réessayer : le sorcier s'en va donc tout seul au bout de quelques secondes, ou dès que
+   le joueur touche une réponse ou une touche du clavier. */
+let minuteurSorcier = null;
+function retireSorcier(delai = 0) {
+  clearTimeout(minuteurSorcier);
+  minuteurSorcier = setTimeout(() => {
+    const st = $('nat-character-stage');
+    if (!st.firstChild || st.classList.contains('part')) return;
+    st.classList.add('part');
+    setTimeout(() => { if (st.classList.contains('part')) { st.innerHTML = ''; st.classList.remove('part'); } }, 400);
+  }, delai);
+}
+document.addEventListener('pointerdown', (e) => { if (e.target.closest('#mm-zone') && !game.repondu) retireSorcier(); });
+document.addEventListener('keydown', () => { if (!game.repondu && $('nat-character-stage')?.firstChild) retireSorcier(); });
 function repondu(juste) {
   const q = game.questions[game.index];
   game.repondu = true;
@@ -3509,6 +3528,8 @@ function repondu(juste) {
   $('nat-score-label').textContent = scoreLabel(game.score);
   $('nat-next-button').textContent = game.index + 1 < game.questions.length ? 'Suivant →' : 'Voir mon score →';
   showCharacter(juste ? 'good' : 'bad');
+  /* s'il y a une figure (souvent complétée par la correction), le sorcier la libère au bout de 4 secondes */
+  if (q.figure || q.figureCorrection) retireSorcier(4000);
   setTimeout(() => $('nat-next-button').focus({ preventScroll: true }), 60);
 }
 function nextQuestion() {
@@ -3557,6 +3578,7 @@ function showCharacter(camp) {
   }
   if (/\{[rR]ep\}/.test(msg)) msg = pick(ch.messages.filter((m) => !/\{[rR]ep\}/.test(m)));
   recentMessages.push(msg); if (recentMessages.length > 4) recentMessages.shift();
+  clearTimeout(minuteurSorcier);
   const stage = $('nat-character-stage');
   stage.className = `character-stage ${camp}`;
   stage.innerHTML = `<div class="bubble${photo ? ' has-photo' : ''}">${photo ? `<img class="bubble-photo" src="${photo}" alt="" />` : ''}<div><span class="who">${ch.nom}</span>${nbspFr(msg)}</div></div>${characterSvg(id)}`;
@@ -3692,6 +3714,9 @@ if (firebaseReady) {
     auth = firebase.auth();
     db = firebase.firestore();
     try { db.settings({ experimentalAutoDetectLongPolling: true }); } catch (e) {}
+    /* v8 : hors connexion, Firestore garde une copie des scores sur l'appareil ; un score fait sans internet
+       attend dans cette réserve et part tout seul quand la connexion revient. */
+    db.enablePersistence({ synchronizeTabs: true }).catch((e) => console.warn('Mode hors connexion des scores', e.code));
   } catch (e) { console.warn('Firebase', e); }
 }
 
@@ -3782,7 +3807,7 @@ function profileFieldsHtml(prefix, p, withConsent) {
     <button type="button" class="secondary-button add-adulte" id="${prefix}-add-adulte">+ Ajouter un proche (papi, mamie, tonton…)</button>
     <!-- v12 : deux options à cocher -->
     <label class="account-option"><input type="checkbox" id="${prefix}-opt-sorciers"${optSorciers(p) ? ' checked' : ''} />
-      <span><b>Les sorciers encouragent le joueur</b> (option plutôt réservée aux enfants).<br>Après chaque réponse, un sorcier apparaît ; les prénoms servent à personnaliser ses encouragements (« Joseph, tu es un génie de la grammaire ! », « Ton papa Marc sera fier de toi ! »).</span></label>
+      <span><b>Les sorciers encouragent le joueur</b> (option plutôt réservée aux enfants).<br>Après chaque réponse, un sorcier apparaît ; les prénoms servent à personnaliser ses encouragements (« Joseph, tu es un génie des maths ! », « Ton papa Marc sera fier de toi ! »).</span></label>
     <label class="account-option"><input type="checkbox" id="${prefix}-opt-envoi"${optEnvoi(p) ? ' checked' : ''} />
       <span><b>Envoyer les résultats par e-mail</b>.<br>Les adresses e-mail des proches servent seulement à leur envoyer les scores et le bilan de progression.</span></label>
     ${withConsent ? `<label class="account-consent"><input type="checkbox" id="${prefix}-consent" required /><span>Je suis le parent ou l'adulte responsable de cet enfant, et je crée ce compte pour lui.</span></label>` : ''}`;
@@ -4323,3 +4348,9 @@ $('fiche-modal').addEventListener('click', (e) => { if (e.target.id === 'fiche-m
 if (auth) wireAccount();
 updateAccountBar();
 showPanel('welcome');
+
+/* v8 : HORS CONNEXION. Le « service worker » (sw.js) range une copie de l'application sur l'appareil
+   à la première visite, puis la sert quand internet manque. */
+if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch((e) => console.warn('Hors connexion', e)));
+}
