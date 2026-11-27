@@ -1,13 +1,13 @@
-/* MNEMOMATHS — service worker (v9)
+/* MNEMOMATHS — service worker (v10)
    Pourquoi ce fichier : sans lui, le navigateur va chercher l'application sur internet à chaque ouverture.
    Avec lui, il en garde une copie sur l'appareil (la « réserve ») et s'en sert quand il n'y a pas de réseau.
    Règle :
    - pages, app.js, style.css : on essaie d'abord internet (pour avoir la dernière version), sinon la réserve ;
    - images et bibliothèques Firebase : la réserve d'abord (elles ne changent pas), sinon internet.
    À chaque nouvelle version, changer VERSION ci-dessous : l'ancienne réserve est alors effacée. */
-const VERSION = 'mnemomaths-v9';
+const VERSION = 'mnemomaths-v10';
 const FICHIERS = [
-  './', 'index.html', 'index.html?v=9', 'app.js?v=9', 'style.css?v=9', 'manifest.json',
+  './', 'index.html', 'index.html?v=10', 'app.js?v=10', 'style.css?v=10', 'manifest.json',
   'fiche-nombres.html', 'fiche-grandeurs.html', 'fiche-geometrie.html',
   'icons/icone.svg', 'icons/icon-180.png', 'icons/icon-192.png', 'icons/icon-512.png',
   'assets/accueil.jpg',
