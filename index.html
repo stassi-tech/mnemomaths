@@ -6,7 +6,7 @@
     <meta name="description" content="Jeux gratuits pour mémoriser les notions fondamentales de mathématiques, du CE1 à la 3e." />
     <title>MNEMOMATHS — Les mathématiques à travers la mémoire</title>
     <meta name="theme-color" content="#9c7a4a" />
-    <!-- MNEMOMATHS v5 : même ossature que MNEMOGRAM (bandeau, ambiances, comptes, scores, bilan) -->
+    <!-- MNEMOMATHS v6 : même ossature que MNEMOGRAM (bandeau, ambiances, comptes, scores, bilan) -->
     <!-- v8 : installation comme une application (même méthode que Mnemart) : icône sur l'écran d'accueil,
          ouverture en plein écran sans la barre du navigateur. -->
     <link rel="manifest" href="manifest.json" />
@@ -15,7 +15,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="MNEMOMATHS" />
-    <link rel="stylesheet" href="style.css?v=5" />
+    <link rel="stylesheet" href="style.css?v=6" />
     <!-- Comptes : même service Firebase que Mnemart (connexion par e-mail), chargé en « defer » comme dans Mnemart -->
     <script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
     <script defer src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
@@ -277,8 +277,8 @@
         <p>En haut de l'accueil, quatre onglets : CE1 – CE2, CM1 – CM2, 6e – 5e, 4e – 3e. Sous les onglets, les trois domaines du programme : <b>Nombres et calculs</b>, <b>Grandeurs et mesures</b>, <b>Espace et géométrie</b>. Chaque domaine propose des exercices, une notion à la fois, puis un <b>bilan</b> qui mélange tout, et enfin un <b>quiz de cours</b>. Les exercices marqués « bientôt » sont prévus par le programme et arriveront dans les prochaines versions.</p>
         <h3>Les exercices</h3>
         <ul>
-          <li><b>Les questions changent à chaque partie</b> : elles sont fabriquées au moment où l'on appuie sur « Démarrer le jeu ». On peut donc rejouer autant qu'on veut, et les questions deviennent de plus en plus difficiles au fil de la partie (niveau CE1 au début et CE2 à la fin dans l'onglet CE1 – CE2 ; CM1 puis CM2 dans l'onglet CM1 – CM2).</li>
-          <li><b>Écrire la réponse</b> : on la tape au clavier, ou avec les touches de l'écran, puis on appuie sur « Valider » (ou sur Entrée). On peut écrire « 3452 » ou « 3 452 », « 4,50 » ou « 4.5 ». Pour une heure, on écrit par exemple « 15 h 45 ».</li>
+          <li><b>Les questions changent à chaque partie</b> : elles sont fabriquées au moment où l'on appuie sur « Démarrer le jeu ». On peut donc rejouer autant qu'on veut, et les questions deviennent de plus en plus difficiles au fil de la partie (niveau CE1 au début et CE2 à la fin dans l'onglet CE1 – CE2 ; de même CM1 puis CM2, et 6e puis 5e).</li>
+          <li><b>Écrire la réponse</b> : on la tape au clavier, ou avec les touches de l'écran, puis on appuie sur « Valider » (ou sur Entrée). On peut écrire « 3452 » ou « 3 452 », « 4,50 » ou « 4.5 ». Pour une heure, on écrit par exemple « 15 h 45 ». Pour un nombre négatif (en 5e), la touche « − » de l'écran change le signe. Pour les calculs avec π, une réponse arrondie au dixième est acceptée.</li>
           <li><b>Choisir la réponse</b> : on appuie sur le bon bouton. Pour les figures, il faut choisir le nom le plus précis : si l'on répond « rectangle » pour un carré, le sorcier dit que c'est vrai mais qu'il existe un nom plus précis, sans compter d'erreur.</li>
           <li><b>Les figures</b> (horloges, fractions, pièces et billets, polygones, solides, quadrillages) sont dessinées à la craie sur l'ardoise.</li>
           <li><b>Les quiz de cours</b> : à la fin de chaque domaine, après le bilan, 12 questions de cours (définitions, propriétés, égalités comme « 1 m = 100 cm »), tirées d'une banque fixe. Ce sont toujours les mêmes questions qui reviennent, pour qu'on finisse par toutes les savoir par cœur.</li>
@@ -317,6 +317,6 @@
       <div id="report-send" class="report-send no-print"></div>
     </div>
 
-    <script defer src="app.js?v=5"></script>
+    <script defer src="app.js?v=6"></script>
   </body>
 </html>

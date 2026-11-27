@@ -8,9 +8,10 @@
 'use strict';
 
 /* Numéro de version affiché à l'écran (bandeau du haut) : à augmenter à chaque modification. */
-const APP_VERSION = 'v5';
+const APP_VERSION = 'v6';
 /* v2 à v4 : la case « Écris ta réponse » n'est plus prise pour un identifiant par le navigateur.
-   v5 : les exercices du CM1 – CM2, et un quiz de cours à la fin de chaque domaine (CE et CM). */
+   v5 : les exercices du CM1 – CM2, et un quiz de cours à la fin de chaque domaine (CE et CM).
+   v6 : les exercices et les quiz de cours du 6e – 5e (relatifs, calcul littéral, π, statistiques, probabilités, symétrie centrale…). */
 
 const $ = (id) => document.getElementById(id);
 const shuffle = (arr) => { const a = arr.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
@@ -437,7 +438,8 @@ const fmtEuros = (c) => (c % 100 ? `${fmtN(c / 100, 2)} €` : `${fmtN(c / 100)}
 const fmtHeure = (min) => { const h = Math.floor(min / 60) % 24, m = min % 60; return m ? `${h} h ${String(m).padStart(2, '0')}` : `${h} h`; };
 const fmtDuree = (min) => { const h = Math.floor(min / 60), m = min % 60; return h && m ? `${h} h ${m} min` : h ? `${h} h` : `${m} min`; };
 function lisNombre(s) {
-  const t = String(s || '').replace(/[\s  ]/g, '').replace(',', '.').replace(/(€|[a-zA-Zé²³]+)$/, '');
+  /* v6 : le signe moins peut être tapé « - » ou « − » (touche du clavier de l'écran) */
+  const t = String(s || '').replace(/[\s\u202f\u00a0]/g, '').replace(/[−–]/g, '-').replace(',', '.').replace(/(€|°|[a-zA-Zé²³]+)$/, '');
   return /^-?\d+(\.\d+)?$/.test(t) ? Number(t) : NaN;
 }
 /* une heure ou une durée écrite par l'élève : « 15 h 45 », « 15h45 », « 15:45 », « 1 h 15 min », « 90 min » */
@@ -498,11 +500,19 @@ const PARCOURS = {
     { jeu: 'cm-bilan-nb', mix: ['cmgrands', 'cmdec', 'cmfrac', 'cmcalc', 'cmdiv', 'cmpb'], n: 14, titre: 'Tout sur les nombres et les calculs', classes: ['cm'], bilan: true,
       consigne: `<strong>Bilan</strong> : tout ce que tu as appris au CM sur les nombres et les calculs, mélangé. Quatorze questions. ${regle}` },
     { jeu: 'cm-quiz-nb', quiz: 'cm-nombres', n: 12, titre: 'Quiz de cours : nombres et calculs', classes: ['cm'], quizCours: true, consigne: `<strong>Quiz de cours</strong> : 12 questions tirées au hasard parmi les définitions, les propriétés et les égalités à savoir par cœur. Ce sont toujours les mêmes questions qui reviennent : rejoue jusqu'à toutes les connaître ! ${regle}` },
-    { titre: 'La priorité des opérations', classes: ['65'], avenir: true },
-    { titre: 'Les critères de divisibilité', classes: ['65'], avenir: true },
-    { titre: 'Les nombres relatifs : comparer, additionner, soustraire', classes: ['65'], avenir: true },
-    { titre: 'Les fractions : comparer, additionner, soustraire', classes: ['65'], avenir: true },
-    { titre: 'Le calcul littéral : la lettre dans les calculs', classes: ['65'], avenir: true },
+    { jeu: '65-prio', gen: 'prio', titre: 'La priorité des opérations', classes: ['65'],
+      consigne: `D'abord les <strong>parenthèses</strong>, puis les <strong>multiplications et divisions</strong>, enfin les <strong>additions et soustractions</strong>. Calcule sans te laisser piéger par l'ordre d'écriture ! ${regle}` },
+    { jeu: '65-divis', gen: 'divis', titre: 'Les critères de divisibilité', classes: ['65'],
+      consigne: `Divisible par 2, 5, 10 : regarde le chiffre des unités. Par 3 ou 9 : additionne les chiffres. Par 4 : regarde les deux derniers chiffres. ${regle}` },
+    { jeu: '65-frac', gen: 'frac65', titre: 'Les fractions', classes: ['65'],
+      consigne: `La fraction comme quotient (3/4 = 3 ÷ 4), les fractions égales, la simplification, puis (en 5e) la comparaison et l'addition de fractions. ${regle}` },
+    { jeu: '65-rel', gen: 'rel', titre: 'Les nombres relatifs (5e)', classes: ['65'],
+      consigne: `Compare, additionne et soustrais des nombres positifs et négatifs. Pour écrire un nombre négatif, utilise la touche <strong>−</strong> du clavier. ${regle}` },
+    { jeu: '65-litt', gen: 'litt', titre: 'Le calcul littéral (5e)', classes: ['65'],
+      consigne: `Une lettre remplace un nombre : calcule une expression pour une valeur donnée, teste une égalité, réduis une expression. Rappel : 3x veut dire 3 × x. ${regle}` },
+    { jeu: '65-bilan-nb', mix: ['prio', 'divis', 'frac65', 'rel', 'litt'], n: 12, titre: 'Tout sur les nombres et les calculs', classes: ['65'], bilan: true,
+      consigne: `<strong>Bilan</strong> : tout ce que tu as appris en 6e et en 5e sur les nombres et les calculs, mélangé. ${regle}` },
+    { jeu: '65-quiz-nb', quiz: '65-nombres', n: 12, titre: 'Quiz de cours : nombres et calculs', classes: ['65'], quizCours: true, consigne: `<strong>Quiz de cours</strong> : 12 questions tirées au hasard parmi les définitions, les propriétés et les formules à savoir par cœur. Ce sont toujours les mêmes questions qui reviennent : rejoue jusqu'à toutes les connaître ! ${regle}` },
     { titre: 'Multiplier et diviser les relatifs et les fractions', classes: ['43'], avenir: true },
     { titre: 'Les puissances et la notation scientifique', classes: ['43'], avenir: true },
     { titre: 'Développer, factoriser, les identités remarquables', classes: ['43'], avenir: true },
@@ -541,11 +551,22 @@ const PARCOURS = {
     { jeu: 'cm-bilan-gr', mix: ['cmaire', 'cmangle', 'cmprop', 'cmpct', 'cmconv', 'cmvol'], n: 12, titre: 'Tout sur les grandeurs et les mesures', classes: ['cm'], bilan: true,
       consigne: `<strong>Bilan</strong> : tout ce que tu as appris au CM sur les grandeurs et les mesures, mélangé. Douze questions. ${regle}` },
     { jeu: 'cm-quiz-gr', quiz: 'cm-grandeurs', n: 12, titre: 'Quiz de cours : grandeurs et mesures', classes: ['cm'], quizCours: true, consigne: `<strong>Quiz de cours</strong> : 12 questions tirées au hasard parmi les définitions, les propriétés et les égalités à savoir par cœur. Ce sont toujours les mêmes questions qui reviennent : rejoue jusqu'à toutes les connaître ! ${regle}` },
-    { titre: 'Longueur du cercle et aire du disque', classes: ['65'], avenir: true },
-    { titre: 'Les volumes du cube et du pavé droit', classes: ['65'], avenir: true },
-    { titre: 'Le coefficient de proportionnalité', classes: ['65'], avenir: true },
-    { titre: 'Statistiques : effectifs, fréquences, moyenne', classes: ['65'], avenir: true },
-    { titre: 'Les probabilités', classes: ['65', '43'], avenir: true },
+    { jeu: '65-cercle', gen: 'cercle65', titre: 'Longueur du cercle et aire du disque', classes: ['65'],
+      consigne: `Longueur du cercle = 2 × π × R ; aire du disque = π × R × R. Prends π ≈ 3,14 ; tu peux utiliser la calculatrice, et arrondir au dixième. ${regle}` },
+    { jeu: '65-aires', gen: 'aires65', titre: 'L\'aire du triangle et du parallélogramme', classes: ['65'],
+      consigne: `Triangle : base × hauteur ÷ 2. Parallélogramme (5e) : base × hauteur. La hauteur est toujours perpendiculaire à la base. ${regle}` },
+    { jeu: '65-vol', gen: 'vol65', titre: 'Les volumes', classes: ['65'],
+      consigne: `Cube, pavé droit, puis (en 5e) prisme droit et cylindre : volume = aire de la base × hauteur. Et retiens : 1 L = 1 dm³, 1 mL = 1 cm³. ${regle}` },
+    { jeu: '65-prop', gen: 'prop65', titre: 'Proportionnalité et pourcentages', classes: ['65'],
+      consigne: `Coefficient de proportionnalité, pourcentages, réductions, quatrième proportionnelle et ratios. ${regle}` },
+    { jeu: '65-stat', gen: 'stat', titre: 'Les statistiques', classes: ['65'],
+      consigne: `Lis un tableau de données : effectif total, fréquence en pourcentage, moyenne. ${regle}` },
+    { jeu: '65-proba', gen: 'proba', titre: 'Les probabilités (5e)', classes: ['65'],
+      consigne: `Une probabilité est entre 0 (impossible) et 1 (certain). Quand toutes les issues ont la même chance : probabilité = cas favorables ÷ cas possibles. ${regle}` },
+    { jeu: '65-bilan-gr', mix: ['cercle65', 'aires65', 'vol65', 'prop65', 'stat', 'proba'], n: 12, titre: 'Tout sur les grandeurs et les mesures', classes: ['65'], bilan: true,
+      consigne: `<strong>Bilan</strong> : tout ce que tu as appris en 6e et en 5e sur les grandeurs et les mesures, mélangé. ${regle}` },
+    { jeu: '65-quiz-gr', quiz: '65-grandeurs', n: 12, titre: 'Quiz de cours : grandeurs et mesures', classes: ['65'], quizCours: true, consigne: `<strong>Quiz de cours</strong> : 12 questions tirées au hasard parmi les définitions, les propriétés et les formules à savoir par cœur. Ce sont toujours les mêmes questions qui reviennent : rejoue jusqu'à toutes les connaître ! ${regle}` },
+    { titre: 'Les probabilités', classes: ['43'], avenir: true },
     { titre: 'Médiane et étendue', classes: ['43'], avenir: true },
     { titre: 'Les grandeurs composées : vitesse, débit, masse volumique', classes: ['43'], avenir: true },
     { titre: 'Volumes de la pyramide, du cône et de la boule', classes: ['43'], avenir: true },
@@ -581,11 +602,19 @@ const PARCOURS = {
     { jeu: 'cm-bilan-geo', mix: ['cmdroites', 'cmpoly', 'cmpatron', 'cmsym', 'cmsolides', 'cmprog'], n: 12, titre: 'Tout sur l\'espace et la géométrie', classes: ['cm'], bilan: true,
       consigne: `<strong>Bilan</strong> : tout ce que tu as appris au CM sur l'espace et la géométrie, mélangé. Douze questions. ${regle}` },
     { jeu: 'cm-quiz-geo', quiz: 'cm-geometrie', n: 12, titre: 'Quiz de cours : espace et géométrie', classes: ['cm'], quizCours: true, consigne: `<strong>Quiz de cours</strong> : 12 questions tirées au hasard parmi les définitions, les propriétés et les égalités à savoir par cœur. Ce sont toujours les mêmes questions qui reviennent : rejoue jusqu'à toutes les connaître ! ${regle}` },
-    { titre: 'Segment, droite, demi-droite : les notations', classes: ['65'], avenir: true },
-    { titre: 'La médiatrice d\'un segment', classes: ['65'], avenir: true },
-    { titre: 'La symétrie centrale', classes: ['65'], avenir: true },
-    { titre: 'Les angles et les droites parallèles', classes: ['65'], avenir: true },
-    { titre: 'Les parallélogrammes', classes: ['65'], avenir: true },
+    { jeu: '65-nota', gen: 'nota', titre: 'Les notations', classes: ['65'],
+      consigne: `[AB] le segment, (AB) la droite, [AB) la demi-droite, AB la longueur, ∈ « appartient à ». ${regle}` },
+    { jeu: '65-medi', gen: 'medi', titre: 'La médiatrice', classes: ['65'],
+      consigne: `La médiatrice d'un segment est la droite perpendiculaire à ce segment en son milieu ; chacun de ses points est à égale distance des deux extrémités. ${regle}` },
+    { jeu: '65-sym', gen: 'symc', titre: 'Les symétries', classes: ['65'],
+      consigne: `Symétrie axiale et symétrie centrale (5e) : elles conservent les longueurs, les angles et les aires. Dans la symétrie de centre O, O est le milieu entre un point et son symétrique. ${regle}` },
+    { jeu: '65-angles', gen: 'angles65', titre: 'Les angles', classes: ['65'],
+      consigne: `La somme des angles d'un triangle vaut 180°. Avec deux droites parallèles, les angles alternes-internes et correspondants sont égaux (5e). ${regle}` },
+    { jeu: '65-para', gen: 'para', titre: 'Les parallélogrammes (5e)', classes: ['65'],
+      consigne: `Côtés opposés parallèles et de même longueur, diagonales qui se coupent en leur milieu, angles opposés égaux. ${regle}` },
+    { jeu: '65-bilan-geo', mix: ['nota', 'medi', 'symc', 'angles65', 'para'], n: 12, titre: 'Tout sur l\'espace et la géométrie', classes: ['65'], bilan: true,
+      consigne: `<strong>Bilan</strong> : tout ce que tu as appris en 6e et en 5e sur l'espace et la géométrie, mélangé. ${regle}` },
+    { jeu: '65-quiz-geo', quiz: '65-geometrie', n: 12, titre: 'Quiz de cours : espace et géométrie', classes: ['65'], quizCours: true, consigne: `<strong>Quiz de cours</strong> : 12 questions tirées au hasard parmi les définitions, les propriétés et les formules à savoir par cœur. Ce sont toujours les mêmes questions qui reviennent : rejoue jusqu'à toutes les connaître ! ${regle}` },
     { titre: 'Le théorème de Pythagore', classes: ['43'], avenir: true },
     { titre: 'Translations et rotations', classes: ['43'], avenir: true },
     { titre: 'Le théorème de Thalès', classes: ['43'], avenir: true },
@@ -1941,6 +1970,464 @@ GEN.cmprog = (p) => {
 
 
 /* ============================================================
+   6e – 5e : NOMBRES ET CALCULS
+   p va de 0 (niveau 6e) à 1 (niveau 5e).
+   ============================================================ */
+const fmtR = (x) => (x < 0 ? `(−${fmtN(-x)})` : fmtN(x));          /* un relatif dans un calcul : (−5) */
+const fmtRs = (x) => (x < 0 ? `−${fmtN(-x)}` : x > 0 ? `+${fmtN(x)}` : '0');  /* avec son signe : +5, −5 */
+const pgcd = (a, b) => (b ? pgcd(b, a % b) : Math.abs(a));
+
+/* --- La priorité des opérations --- */
+GEN.prio = (p) => {
+  const notion = 'La priorité des opérations';
+  const a = rnd(2, 12), b = rnd(2, 9), c = rnd(2, 9), d = rnd(2, 6);
+  const F = pick(p < 0.4 ? [0, 1, 2] : [0, 1, 2, 3, 4, 5]);
+  const modeles = [
+    { e: `${a} + ${b} × ${c}`, r: a + b * c, x: `La multiplication est prioritaire : on calcule d'abord ${b} × ${c} = ${b * c}, puis ${a} + ${b * c} = <strong>${a + b * c}</strong>. (Et non ${a} + ${b} = ${a + b}, puis × ${c} !)` },
+    { e: `${a * c + b} − ${a} × ${c}`, r: b, x: `D'abord la multiplication : ${a} × ${c} = ${a * c}. Puis ${a * c + b} − ${a * c} = <strong>${b}</strong>.` },
+    { e: `(${a} + ${b}) × ${c}`, r: (a + b) * c, x: `Les parenthèses passent en premier : ${a} + ${b} = ${a + b}, puis ${a + b} × ${c} = <strong>${(a + b) * c}</strong>.` },
+    { e: `${a * d} ÷ ${d} + ${b} × ${c}`, r: a + b * c, x: `D'abord la division et la multiplication : ${a * d} ÷ ${d} = ${a} et ${b} × ${c} = ${b * c}. Puis ${a} + ${b * c} = <strong>${a + b * c}</strong>.` },
+    { e: `${a + 40} − (${b} + ${c}) × 2`, r: a + 40 - (b + c) * 2, x: `D'abord les parenthèses : ${b} + ${c} = ${b + c}. Puis la multiplication : ${b + c} × 2 = ${(b + c) * 2}. Enfin ${a + 40} − ${(b + c) * 2} = <strong>${a + 40 - (b + c) * 2}</strong>.` },
+    { e: `${b} × [${c} + ${d} × (${a} − 1)]`, r: b * (c + d * (a - 1)), x: `On commence par les parenthèses les plus intérieures : ${a} − 1 = ${a - 1}. Puis dans les crochets, la multiplication d'abord : ${d} × ${a - 1} = ${d * (a - 1)}, et ${c} + ${d * (a - 1)} = ${c + d * (a - 1)}. Enfin ${b} × ${c + d * (a - 1)} = <strong>${b * (c + d * (a - 1))}</strong>.` },
+  ];
+  const M = modeles[F];
+  return { enonce: `Calcule :<br><strong>${M.e} = ?</strong>`, saisie: { type: 'nombre', bonne: M.r, neg: M.r < 0 }, rep: fmtN(M.r), notion, court: M.e,
+    explication: `${M.x}<br>L'ordre : d'abord les <strong>parenthèses</strong>, puis les <strong>multiplications et divisions</strong>, enfin les <strong>additions et soustractions</strong> (de gauche à droite).` };
+};
+
+/* --- Les critères de divisibilité --- */
+GEN.divis = (p) => {
+  const notion = 'Les critères de divisibilité';
+  const d = pick(p < 0.4 ? [2, 5, 10, 3] : [2, 3, 5, 9, 10, 4]);
+  let n = rnd(100, p < 0.5 ? 999 : 99999);
+  if (Math.random() < 0.5) n = n - (n % d) || d * 37;
+  const oui = n % d === 0, s = String(n).split('').map(Number), som = s.reduce((t, x) => t + x, 0), u = s[s.length - 1];
+  const regle = {
+    2: `Un nombre est divisible par 2 si son chiffre des unités est 0, 2, 4, 6 ou 8 (s'il est pair). Ici, le chiffre des unités est ${u}.`,
+    5: `Un nombre est divisible par 5 si son chiffre des unités est 0 ou 5. Ici, c'est ${u}.`,
+    10: `Un nombre est divisible par 10 si son chiffre des unités est 0. Ici, c'est ${u}.`,
+    3: `Un nombre est divisible par 3 si la somme de ses chiffres est dans la table de 3. Ici : ${s.join(' + ')} = ${som}, ${som % 3 ? 'qui n\'est pas' : 'qui est'} dans la table de 3.`,
+    9: `Un nombre est divisible par 9 si la somme de ses chiffres est dans la table de 9. Ici : ${s.join(' + ')} = ${som}, ${som % 9 ? 'qui n\'est pas' : 'qui est'} dans la table de 9.`,
+    4: `Un nombre est divisible par 4 si le nombre formé par ses deux derniers chiffres est dans la table de 4. Ici : ${String(n).slice(-2)}, ${Number(String(n).slice(-2)) % 4 ? 'qui n\'est pas' : 'qui est'} dans la table de 4.`,
+  }[d];
+  return { enonce: `Le nombre <strong>${fmtN(n)}</strong> est-il <strong>divisible par ${d}</strong> ?`, choix: [{ v: 'oui', html: 'Oui' }, { v: 'non', html: 'Non' }], bonne: oui ? 'oui' : 'non', rep: oui ? 'oui' : 'non', notion,
+    explication: `${regle} Donc ${fmtN(n)} <strong>${oui ? 'est' : 'n\'est pas'} divisible par ${d}</strong>${oui ? ` : ${fmtN(n)} = ${d} × ${fmtN(n / d)}` : ''}.` };
+};
+
+/* --- Les fractions (6e : quotient, fractions égales ; 5e : comparer, additionner) --- */
+GEN.frac65 = (p) => {
+  const notion = 'Les fractions';
+  const type = pick(p < 0.4 ? [0, 1, 2] : [1, 2, 3, 4, 5]);
+  if (type === 0) {
+    const b = pick([2, 4, 5, 8, 10]), a = rnd(1, 4 * b);
+    return { enonce: `Écris le quotient ${fracHtml(a, b)} sous forme décimale.`, saisie: { type: 'nombre', bonne: a / b }, rep: fmtN(a / b), notion, voix: `Écris le quotient ${a} sur ${b} sous forme décimale.`,
+      explication: `La fraction ${fracHtml(a, b)} est le <strong>quotient</strong> de ${a} par ${b} : ${a} ÷ ${b} = <strong>${fmtN(a / b)}</strong>. C'est le nombre qui, multiplié par ${b}, donne ${a}.` };
+  }
+  if (type === 1) {
+    const k = rnd(2, 6), a = rnd(1, 9), b = a + rnd(1, 9), g = pgcd(a, b), A = a / g, B = b / g;
+    return { enonce: `Simplifie la fraction ${fracHtml(A * k, B * k)}. Quel est le numérateur de la fraction simplifiée au maximum (son dénominateur sera ${B}) ?`, saisie: { type: 'nombre', bonne: A }, rep: String(A), notion, voix: `Simplifie la fraction ${A * k} sur ${B * k}. Quel est le numérateur de la fraction simplifiée, dont le dénominateur sera ${B} ?`,
+      explication: `${A * k} et ${B * k} sont tous les deux dans la table de ${k} : on divise le numérateur et le dénominateur par ${k}. ${fracHtml(A * k, B * k)} = ${fracHtml(A, B)}. Le numérateur est <strong>${A}</strong>.` };
+  }
+  if (type === 2) {
+    const b = rnd(3, 12), a1 = rnd(1, 2 * b), a2 = rnd(1, 2 * b);
+    const s = a1 < a2 ? '<' : a1 > a2 ? '>' : '=';
+    const mots = { '<': 'plus petite que', '>': 'plus grande que', '=': 'égale à' };
+    return { enonce: `Compare :<br>${fracHtml(a1, b)} <span class="mm-trou">…</span> ${fracHtml(a2, b)}`, choix: ['<', '>', '='].map((v) => ({ v, html: `<span class="mm-signe">${v.replace('<', '&lt;').replace('>', '&gt;')}</span> ${mots[v]}` })), bonne: s, rep: `« ${mots[s]} »`, notion, voix: `Compare ${a1} sur ${b} et ${a2} sur ${b}.`,
+      explication: `Les deux fractions ont le <strong>même dénominateur</strong> (${b}) : on compare simplement les numérateurs, ${a1} et ${a2}. Donc ${fracHtml(a1, b)} ${s.replace('<', '&lt;').replace('>', '&gt;')} ${fracHtml(a2, b)}.` };
+  }
+  if (type === 3) {
+    const b = rnd(3, 12), a1 = rnd(1, b), a2 = rnd(1, b), plus = Math.random() < 0.6 || a1 <= a2;
+    const r = plus ? a1 + a2 : a1 - a2;
+    return { enonce: `Calcule : ${fracHtml(a1, b)} ${plus ? '+' : '−'} ${fracHtml(a2, b)} = ${fracHtml('?', b)}<br>Quel est le numérateur ?`, saisie: { type: 'nombre', bonne: r }, rep: String(r), notion, voix: `Calcule ${a1} sur ${b} ${plus ? 'plus' : 'moins'} ${a2} sur ${b}. Quel est le numérateur du résultat, sur ${b} ?`,
+      explication: `Même dénominateur : on ${plus ? 'additionne' : 'soustrait'} les numérateurs et on garde le dénominateur. ${fracHtml(a1, b)} ${plus ? '+' : '−'} ${fracHtml(a2, b)} = ${fracHtml(`${a1} ${plus ? '+' : '−'} ${a2}`, b)} = ${fracHtml(r, b)}. Le numérateur est <strong>${r}</strong>.` };
+  }
+  if (type === 4) {
+    const b = pick([2, 3, 4, 5]), k = pick([2, 3]), B = b * k, a1 = rnd(1, b), a2 = rnd(1, B), r = a1 * k + a2;
+    return { enonce: `Calcule : ${fracHtml(a1, b)} + ${fracHtml(a2, B)} = ${fracHtml('?', B)}<br>Quel est le numérateur ?`, saisie: { type: 'nombre', bonne: r }, rep: String(r), notion, voix: `Calcule ${a1} sur ${b} plus ${a2} sur ${B}. Quel est le numérateur du résultat, sur ${B} ?`,
+      explication: `Les dénominateurs sont différents : on écrit d'abord ${fracHtml(a1, b)} avec le dénominateur ${B}, en multipliant en haut et en bas par ${k} : ${fracHtml(a1, b)} = ${fracHtml(a1 * k, B)}. Puis ${fracHtml(a1 * k, B)} + ${fracHtml(a2, B)} = ${fracHtml(r, B)}. Le numérateur est <strong>${r}</strong>.` };
+  }
+  const d = pick([3, 4, 5, 6, 8, 10]), n = rnd(1, d - 1), q = d * rnd(2, 15);
+  return { enonce: `Calcule ${fracHtml(n, d)} de <strong>${q}</strong>.`, saisie: { type: 'nombre', bonne: (q / d) * n }, rep: fmtN((q / d) * n), notion, voix: `Calcule ${fracMots(n, d)} de ${q}.`,
+    explication: `Prendre ${fracHtml(n, d)} de ${q}, c'est multiplier : ${fracHtml(n, d)} × ${q} = ${q} ÷ ${d} × ${n} = ${q / d} × ${n} = <strong>${fmtN((q / d) * n)}</strong>.` };
+};
+
+/* --- Les nombres relatifs (5e) --- */
+GEN.rel = (p) => {
+  const notion = 'Les nombres relatifs';
+  const a = rnd(-15, 15) || 3, b = rnd(-15, 15) || -4;
+  const type = pick(p < 0.3 ? [0, 0, 1] : [0, 1, 2, 3]);
+  if (type === 0) {
+    const s = a < b ? '<' : a > b ? '>' : '=';
+    const mots = { '<': 'plus petit que', '>': 'plus grand que', '=': 'égal à' };
+    return { enonce: `Compare :<br><strong>${fmtRs(a).replace('+', '')}</strong> <span class="mm-trou">…</span> <strong>${fmtRs(b).replace('+', '')}</strong>`, choix: ['<', '>', '='].map((v) => ({ v, html: `<span class="mm-signe">${v.replace('<', '&lt;').replace('>', '&gt;')}</span> ${mots[v]}` })), bonne: s, rep: `« ${mots[s]} »`, notion,
+      voix: `Compare ${a < 0 ? 'moins ' + -a : a} et ${b < 0 ? 'moins ' + -b : b}.`,
+      explication: `Sur une droite graduée, le plus petit est le plus à gauche. ${a < 0 && b < 0 ? `Les deux sont négatifs : le plus petit est celui qui est le plus loin de zéro. ` : a * b < 0 ? 'Un nombre négatif est toujours plus petit qu\'un nombre positif. ' : ''}Donc <strong>${fmtRs(a).replace('+', '')} ${s.replace('<', '&lt;').replace('>', '&gt;')} ${fmtRs(b).replace('+', '')}</strong>.` };
+  }
+  if (type === 1) {
+    const r = a + b;
+    let x;
+    if (a * b > 0) x = `Les deux nombres ont le même signe (${a > 0 ? 'positifs' : 'négatifs'}) : on additionne les distances à zéro (${Math.abs(a)} + ${Math.abs(b)} = ${Math.abs(r)}) et on garde le signe : <strong>${fmtN(r)}</strong>.`;
+    else x = `Les deux nombres ont des signes contraires : on soustrait les distances à zéro (${Math.max(Math.abs(a), Math.abs(b))} − ${Math.min(Math.abs(a), Math.abs(b))} = ${Math.abs(r)}) et on prend le signe de celui qui est le plus loin de zéro : <strong>${fmtN(r)}</strong>.`;
+    return { enonce: `Calcule :<br><strong>${fmtR(a)} + ${fmtR(b)} = ?</strong>`, saisie: { type: 'nombre', bonne: r, neg: true }, rep: fmtN(r), notion, court: `${fmtR(a)} + ${fmtR(b)}`, voix: `Calcule ${a < 0 ? 'moins ' + -a : a} plus ${b < 0 ? 'moins ' + -b : b}.`, explication: x };
+  }
+  if (type === 2) {
+    const r = a - b;
+    return { enonce: `Calcule :<br><strong>${fmtR(a)} − ${fmtR(b)} = ?</strong>`, saisie: { type: 'nombre', bonne: r, neg: true }, rep: fmtN(r), notion, court: `${fmtR(a)} − ${fmtR(b)}`, voix: `Calcule ${a < 0 ? 'moins ' + -a : a} moins ${b < 0 ? 'moins ' + -b : b}.`,
+      explication: `Soustraire un nombre, c'est <strong>ajouter son opposé</strong> : ${fmtR(a)} − ${fmtR(b)} = ${fmtR(a)} + ${fmtR(-b)} = <strong>${fmtN(r)}</strong>.` };
+  }
+  const t1 = rnd(-12, 8), dt = rnd(3, 15), monte = Math.random() < 0.5, t2 = monte ? t1 + dt : t1 - dt;
+  return { enonce: `<span class="mm-pb">Le matin, il fait <strong>${fmtN(t1)} °C</strong>. Dans la journée, la température ${monte ? 'monte' : 'baisse'} de <strong>${dt} °C</strong>. Quelle température fait-il alors ?</span>`, saisie: { type: 'nombre', bonne: t2, unite: '°C', neg: true }, rep: `${fmtN(t2)} degrés`, notion,
+    voix: `Le matin, il fait ${t1 < 0 ? 'moins ' + -t1 : t1} degrés. La température ${monte ? 'monte' : 'baisse'} de ${dt} degrés. Quelle température fait-il alors ?`,
+    explication: `${fmtR(t1)} ${monte ? '+' : '−'} ${dt} = <strong>${fmtN(t2)} °C</strong>. Sur le thermomètre, on ${monte ? 'monte' : 'descend'} de ${dt} graduations à partir de ${fmtN(t1)}.` };
+};
+
+/* --- Le calcul littéral (5e) --- */
+GEN.litt = (p) => {
+  const notion = 'Le calcul littéral';
+  const type = pick(p < 0.4 ? [0, 0, 1] : [0, 1, 2, 3]);
+  const x = rnd(1, 9), a = rnd(2, 9), b = rnd(1, 12);
+  if (type === 0) {
+    const M = pick([
+      { e: `${a}x + ${b}`, r: a * x + b, x: `${a} × ${x} + ${b} = ${a * x} + ${b}` },
+      { e: `${a}(x + ${b})`, r: a * (x + b), x: `${a} × (${x} + ${b}) = ${a} × ${x + b}` },
+      { e: `x² + ${b}`, r: x * x + b, x: `${x} × ${x} + ${b} = ${x * x} + ${b}` },
+      { e: `${a * 10} − ${a}x`, r: a * 10 - a * x, x: `${a * 10} − ${a} × ${x} = ${a * 10} − ${a * x}` },
+    ]);
+    return { enonce: `Calcule l'expression <strong>${M.e}</strong> pour <strong>x = ${x}</strong>.`, saisie: { type: 'nombre', bonne: M.r, neg: M.r < 0 }, rep: fmtN(M.r), notion, court: `${M.e} pour x = ${x}`,
+      voix: `Calcule l'expression ${M.e.replace(/(\d)x/g, '$1 x').replace('x²', 'x au carré')} pour x égale ${x}.`,
+      explication: `On <strong>remplace</strong> x par ${x}. Attention : ${a}x veut dire ${a} × x. ${M.x} = <strong>${fmtN(M.r)}</strong>.` };
+  }
+  if (type === 1) {
+    const vrai = Math.random() < 0.5, y = vrai ? x : x + pick([1, -1, 2]);
+    const g = a * y + b, d = a * x + b;
+    return { enonce: `L'égalité <strong>${a}x + ${b} = ${d}</strong> est-elle vraie pour <strong>x = ${y}</strong> ?`, choix: [{ v: 'oui', html: 'Oui, elle est vraie' }, { v: 'non', html: 'Non, elle est fausse' }], bonne: g === d ? 'oui' : 'non', rep: g === d ? 'oui' : 'non', notion,
+      voix: `L'égalité ${a} x plus ${b} égale ${d} est-elle vraie pour x égale ${y} ?`,
+      explication: `On calcule le membre de gauche pour x = ${y} : ${a} × ${y} + ${b} = ${g}. ${g === d ? `On trouve bien ${d} : l'égalité est <strong>vraie</strong>.` : `On trouve ${g}, et non ${d} : l'égalité est <strong>fausse</strong> pour x = ${y}.`}` };
+  }
+  if (type === 2) {
+    const c = rnd(2, 9), s = Math.random() < 0.6;
+    const r = s ? a + c : a - c;
+    return { enonce: `Réduis l'expression <strong>${a}x ${s ? '+' : '−'} ${c}x</strong>. Combien de x obtient-on ?`, saisie: { type: 'nombre', bonne: r, unite: 'x', neg: true }, rep: `${fmtN(r)} x`, notion, voix: `Réduis l'expression ${a} x ${s ? 'plus' : 'moins'} ${c} x.`,
+      explication: `${a}x ${s ? '+' : '−'} ${c}x, c'est ${a} fois x ${s ? 'plus' : 'moins'} ${c} fois x : (${a} ${s ? '+' : '−'} ${c}) × x = <strong>${fmtN(r)}x</strong>. On ne peut réduire que les termes de même nature (des x avec des x).` };
+  }
+  const k = rnd(2, 9);
+  return { enonce: `Quelle expression est égale à <strong>${k} × x</strong> ?`, choix: shuffle([`${k}x`, `${k} + x`, `${k}x²`, `${k + 1}x`]).map((v) => ({ v, html: v })), bonne: `${k}x`, rep: `${k} x`, notion, voix: `Quelle expression est égale à ${k} fois x ?`,
+    explication: `On peut supprimer le signe × entre un nombre et une lettre : ${k} × x s'écrit <strong>${k}x</strong>. Attention : ${k}x² veut dire ${k} × x × x, et ce n'est pas la même chose.` };
+};
+
+
+/* ============================================================
+   6e – 5e : GRANDEURS ET MESURES
+   Pour π, on prend 3,14 ; une réponse arrondie au dixième est acceptée (saisie.tol).
+   ============================================================ */
+const arr1 = (x) => Math.round(x * 10) / 10;
+
+/* --- Le cercle : longueur et aire --- */
+GEN.cercle65 = (p) => {
+  const notion = 'Le cercle et le disque';
+  const R = rnd(1, 10), diam = Math.random() < 0.3;
+  const type = pick(p < 0.5 ? [0, 0, 1] : [0, 1, 1]);
+  const donnee = diam ? `de <strong>diamètre ${2 * R} cm</strong>` : `de <strong>rayon ${R} cm</strong>`;
+  if (type === 0) {
+    const L = 2 * 3.14 * R;
+    return { enonce: `Quelle est la <strong>longueur</strong> (le périmètre) d'un cercle ${donnee} ? Prends π ≈ 3,14.`, figure: figCercle(diam ? 'diametre' : 'rayon', 20), saisie: { type: 'nombre', bonne: arr1(L), unite: 'cm', tol: 0.051 }, rep: `${fmtN(arr1(L))} centimètres`, notion,
+      voix: `Quelle est la longueur d'un cercle de ${diam ? 'diamètre' : 'rayon'} ${diam ? 2 * R : R} centimètres ? Prends pi environ égal à 3,14.`,
+      explication: `Longueur du cercle = <strong>2 × π × R</strong> (ou π × diamètre). ${diam ? `Le rayon est la moitié du diamètre : R = ${R} cm. ` : ''}2 × 3,14 × ${R} = <strong>${fmtN(arr1(L))} cm</strong> environ.` };
+  }
+  const A = 3.14 * R * R;
+  return { enonce: `Quelle est l'<strong>aire</strong> d'un disque ${donnee} ? Prends π ≈ 3,14.`, figure: figCercle(diam ? 'diametre' : 'rayon', 20), saisie: { type: 'nombre', bonne: arr1(A), unite: 'cm²', tol: 0.051 }, rep: `${fmtN(arr1(A))} centimètres carrés`, notion,
+    voix: `Quelle est l'aire d'un disque de ${diam ? 'diamètre' : 'rayon'} ${diam ? 2 * R : R} centimètres ? Prends pi environ égal à 3,14.`,
+    explication: `Aire du disque = <strong>π × R × R</strong> (π × R²). ${diam ? `Attention, on utilise le rayon : R = ${2 * R} ÷ 2 = ${R} cm. ` : ''}3,14 × ${R} × ${R} = 3,14 × ${R * R} = <strong>${fmtN(arr1(A))} cm²</strong> environ.` };
+};
+
+/* --- Les aires : triangle, parallélogramme --- */
+GEN.aires65 = (p) => {
+  const notion = 'Les aires';
+  const type = pick(p < 0.4 ? ['tr', 'trq'] : ['tr', 'trq', 'para', 'para']);
+  if (type === 'tr') {
+    const a = rnd(3, 12), b = rnd(2, 10), k = Math.min(230 / a, 160 / b);
+    const P = centre([[0, 0], [a * k, 0], [0, -b * k]], 320, 240);
+    return { enonce: 'Quelle est l\'<strong>aire</strong> de ce triangle rectangle ?', figure: figPolygone(P, [`${a} cm`, null, `${b} cm`], { droits: [0] }), saisie: { type: 'nombre', bonne: (a * b) / 2, unite: 'cm²' }, rep: `${fmtN((a * b) / 2)} centimètres carrés`, notion,
+      explication: `Un triangle rectangle est la moitié d'un rectangle de ${a} cm sur ${b} cm. Aire = ${a} × ${b} ÷ 2 = ${a * b} ÷ 2 = <strong>${fmtN((a * b) / 2)} cm²</strong>.` };
+  }
+  if (type === 'trq') {
+    const base = rnd(4, 12), h = rnd(3, 9), dec = rnd(1, base - 1), k = Math.min(230 / base, 150 / h);
+    const P = centre([[0, 0], [base * k, 0], [dec * k, -h * k]], 320, 240), H = [dec * k + P[0][0], P[0][1]];
+    const fig = figPolygone(P, [`${base} cm`, null, null]).replace('</svg>', `<line x1="${P[2][0]}" y1="${P[2][1]}" x2="${H[0]}" y2="${H[1]}" stroke="${BLEU}" stroke-width="2.5" stroke-dasharray="6 5"/>${marqueDroit([H[0] + 20, H[1]], H, P[2], 10, BLEU)}${txt((P[2][0] + H[0]) / 2 + 26, (P[2][1] + H[1]) / 2, `${h} cm`, { taille: 15, gras: true, c: BLEU })}</svg>`);
+    return { enonce: 'Quelle est l\'<strong>aire</strong> de ce triangle ? La hauteur est en pointillés bleus.', figure: fig, saisie: { type: 'nombre', bonne: (base * h) / 2, unite: 'cm²' }, rep: `${fmtN((base * h) / 2)} centimètres carrés`, notion,
+      explication: `Aire du triangle = <strong>base × hauteur ÷ 2</strong> = ${base} × ${h} ÷ 2 = ${base * h} ÷ 2 = <strong>${fmtN((base * h) / 2)} cm²</strong>. La hauteur est perpendiculaire à la base.` };
+  }
+  const base = rnd(4, 10), h = rnd(3, 7), dec = rnd(2, 4), k = Math.min(200 / (base + dec), 150 / h);
+  const P = centre([[0, 0], [base * k, 0], [(base + dec) * k, -h * k], [dec * k, -h * k]], 320, 240), H = [P[3][0], P[0][1]];
+  const fig = figPolygone(P, [`${base} cm`, null, null, null]).replace('</svg>', `<line x1="${P[3][0]}" y1="${P[3][1]}" x2="${H[0]}" y2="${H[1]}" stroke="${BLEU}" stroke-width="2.5" stroke-dasharray="6 5"/>${txt(H[0] - 26, (P[3][1] + H[1]) / 2, `${h} cm`, { taille: 15, gras: true, c: BLEU })}</svg>`);
+  return { enonce: 'Quelle est l\'<strong>aire</strong> de ce parallélogramme ? La hauteur est en pointillés bleus.', figure: fig, saisie: { type: 'nombre', bonne: base * h, unite: 'cm²' }, rep: `${base * h} centimètres carrés`, notion,
+    explication: `Aire du parallélogramme = <strong>base × hauteur</strong> = ${base} × ${h} = <strong>${base * h} cm²</strong>. Si l'on découpe le triangle d'un côté pour le recoller de l'autre, on obtient un rectangle de ${base} cm sur ${h} cm.` };
+};
+
+/* --- Les volumes --- */
+GEN.vol65 = (p) => {
+  const notion = 'Les volumes';
+  const type = pick(p < 0.4 ? [0, 1, 2] : [1, 2, 3, 4]);
+  if (type === 0) {
+    const c = rnd(2, 10);
+    return { enonce: `Quel est le volume d'un <strong>cube</strong> de <strong>${c} cm</strong> d'arête ?`, saisie: { type: 'nombre', bonne: c ** 3, unite: 'cm³' }, rep: `${fmtN(c ** 3)} centimètres cubes`, notion,
+      explication: `Volume du cube = arête × arête × arête = ${c} × ${c} × ${c} = <strong>${fmtN(c ** 3)} cm³</strong>.` };
+  }
+  if (type === 1) {
+    const l = rnd(2, 12), w = rnd(2, 8), h = rnd(2, 10);
+    return { enonce: `Quel est le volume d'un <strong>pavé droit</strong> de ${l} cm sur ${w} cm sur ${h} cm ?`, figure: figSolide('pave'), saisie: { type: 'nombre', bonne: l * w * h, unite: 'cm³' }, rep: `${fmtN(l * w * h)} centimètres cubes`, notion,
+      explication: `Volume du pavé droit = longueur × largeur × hauteur = ${l} × ${w} × ${h} = <strong>${fmtN(l * w * h)} cm³</strong>.` };
+  }
+  if (type === 2) {
+    const F = pick([
+      { q: '1 L = … dm³', r: 1, u: 'dm³', e: '<strong>1 L = 1 dm³</strong> : un litre remplit exactement un cube de 10 cm d\'arête.' },
+      { q: '1 dm³ = … cm³', r: 1000, u: 'cm³', e: 'Un cube de 1 dm d\'arête mesure 10 cm × 10 cm × 10 cm = <strong>1 000 cm³</strong>.' },
+      { q: '1 cm³ = … mL', r: 1, u: 'mL', e: '<strong>1 cm³ = 1 mL</strong> (car 1 L = 1 dm³ = 1 000 cm³ = 1 000 mL).' },
+      { q: '1 m³ = … L', r: 1000, u: 'L', e: '1 m³ = 1 000 dm³ = <strong>1 000 L</strong>.' },
+      { q: '2,5 L = … cm³', r: 2500, u: 'cm³', e: '1 L = 1 dm³ = 1 000 cm³, donc 2,5 L = <strong>2 500 cm³</strong>.' },
+    ]);
+    return { enonce: `Complète :<br><strong>${F.q.replace('…', '<span class="mm-trou">…</span>')}</strong>`, saisie: { type: 'nombre', bonne: F.r, unite: F.u }, rep: fmtN(F.r), notion, explication: F.e, court: F.q };
+  }
+  if (type === 3) {
+    const b = rnd(2, 8), hb = rnd(2, 6), H = rnd(3, 12), Ab = (b * hb) / 2;
+    return { enonce: `Un <strong>prisme droit</strong> a pour base un triangle d'aire <strong>${fmtN(Ab)} cm²</strong> et pour hauteur <strong>${H} cm</strong>. Quel est son volume ?`, saisie: { type: 'nombre', bonne: Ab * H, unite: 'cm³' }, rep: `${fmtN(Ab * H)} centimètres cubes`, notion,
+      explication: `Volume d'un prisme droit = <strong>aire de la base × hauteur</strong> = ${fmtN(Ab)} × ${H} = <strong>${fmtN(Ab * H)} cm³</strong>.` };
+  }
+  const R = rnd(1, 5), H = rnd(2, 10), V = arr1(3.14 * R * R * H);
+  return { enonce: `Quel est le volume d'un <strong>cylindre</strong> de rayon <strong>${R} cm</strong> et de hauteur <strong>${H} cm</strong> ? Prends π ≈ 3,14.`, figure: figSolide('cylindre'), saisie: { type: 'nombre', bonne: V, unite: 'cm³', tol: 0.051 }, rep: `${fmtN(V)} centimètres cubes`, notion,
+    explication: `Volume du cylindre = aire de la base × hauteur = π × R × R × H = 3,14 × ${R} × ${R} × ${H} = <strong>${fmtN(V)} cm³</strong> environ.` };
+};
+
+/* --- Proportionnalité et pourcentages --- */
+GEN.prop65 = (p) => {
+  const notion = 'Proportionnalité et pourcentages';
+  const type = pick(p < 0.4 ? [0, 1, 2] : [1, 2, 3, 4]);
+  if (type === 0) {
+    const k = pick([1.5, 2, 2.5, 3, 4, 0.5]), a = rnd(2, 8) * 2;
+    return { enonce: `Dans ce tableau de proportionnalité, par quel nombre multiplie-t-on la 1re ligne pour obtenir la 2e ? (C'est le <strong>coefficient de proportionnalité</strong>.)<table class="mm-tab"><tr><td>${a}</td><td>${a + 2}</td><td>${a + 6}</td></tr><tr><td>${fmtN(a * k)}</td><td>${fmtN((a + 2) * k)}</td><td>${fmtN((a + 6) * k)}</td></tr></table>`,
+      saisie: { type: 'nombre', bonne: k }, rep: fmtN(k), notion, voix: 'Dans ce tableau de proportionnalité, par quel nombre multiplie-t-on la première ligne pour obtenir la deuxième ?',
+      explication: `On divise un nombre de la 2e ligne par celui qui est au-dessus : ${fmtN(a * k)} ÷ ${a} = <strong>${fmtN(k)}</strong>. Vérification : ${a + 2} × ${fmtN(k)} = ${fmtN((a + 2) * k)}.` };
+  }
+  if (type === 1) {
+    const pc = pick([10, 20, 15, 30, 5, 40]), prix = 10 * rnd(2, 30), r = (prix * pc) / 100;
+    return { enonce: `Combien font <strong>${pc} %</strong> de <strong>${prix} €</strong> ?`, saisie: { type: 'nombre', bonne: r, unite: '€' }, rep: fmtEuros(Math.round(r * 100)), notion, voix: `Combien font ${pc} pour cent de ${prix} euros ?`,
+      explication: `${pc} % de ${prix}, c'est ${prix} × ${pc} ÷ 100 = <strong>${fmtN(r)} €</strong>. Astuce : 10 % de ${prix}, c'est ${fmtN(prix / 10)} ; ${pc === 5 ? '5 %, c\'en est la moitié' : `${pc} %, c'est ${fmtN(pc / 10)} fois plus`}.` };
+  }
+  if (type === 2) {
+    const pc = pick([10, 20, 25, 50]), prix = 4 * 10 * rnd(2, 15), rem = (prix * pc) / 100;
+    return { enonce: `<span class="mm-pb">Un jeu coûte <strong>${prix} €</strong>. Pendant les soldes, il est réduit de <strong>${pc} %</strong>. Quel est son nouveau prix ?</span>`, saisie: { type: 'nombre', bonne: prix - rem, unite: '€' }, rep: fmtEuros(Math.round((prix - rem) * 100)), notion, voix: `Un jeu coûte ${prix} euros. Il est réduit de ${pc} pour cent. Quel est son nouveau prix ?`,
+      explication: `La réduction : ${pc} % de ${prix} = ${prix} × ${pc} ÷ 100 = ${fmtN(rem)} €. Le nouveau prix : ${prix} − ${fmtN(rem)} = <strong>${fmtN(prix - rem)} €</strong>.` };
+  }
+  if (type === 3) {
+    /* quatrième proportionnelle */
+    const a = rnd(2, 9), k = rnd(2, 9), c = a * rnd(2, 5), b = a * k, r = c * k;
+    return { enonce: `<span class="mm-pb">Pour <strong>${a} personnes</strong>, il faut <strong>${b} g</strong> de chocolat. Combien en faut-il pour <strong>${c} personnes</strong> ?</span>`, saisie: { type: 'nombre', bonne: r, unite: 'g' }, rep: `${r} grammes`, notion,
+      explication: `C'est une situation de proportionnalité. ${c} personnes, c'est ${c / a} fois plus que ${a} : ${b} × ${c / a} = <strong>${r} g</strong>. On peut aussi faire le produit en croix : ${b} × ${c} ÷ ${a} = ${r}.` };
+  }
+  const g = rnd(2, 5), f = rnd(1, 5) || 1, tot = (g + f) * rnd(2, 6), parts = tot / (g + f);
+  return { enonce: `<span class="mm-pb">Dans une classe de <strong>${tot} élèves</strong>, le ratio garçons : filles est de <strong>${g} : ${f}</strong>. Combien y a-t-il de garçons ?</span>`, saisie: { type: 'nombre', bonne: g * parts, unite: 'garçons' }, rep: String(g * parts), notion, voix: `Dans une classe de ${tot} élèves, il y a ${g} garçons pour ${f} filles. Combien y a-t-il de garçons ?`,
+    explication: `Le ratio ${g} : ${f} veut dire ${g} garçons pour ${f} filles, soit des groupes de ${g + f} élèves. Il y a ${tot} ÷ ${g + f} = ${parts} groupes, donc ${g} × ${parts} = <strong>${g * parts} garçons</strong>.` };
+};
+
+/* --- Statistiques --- */
+GEN.stat = (p) => {
+  const notion = 'Les statistiques';
+  const n = rnd(5, 7), notes = Array.from({ length: n }, () => rnd(6, 18));
+  const reste = notes.reduce((t, x) => t + x, 0) % n; if (reste) notes[0] += n - reste;   /* la moyenne tombe juste */
+  if (notes[0] > 20) notes[0] -= n;
+  const moy = notes.reduce((t, x) => t + x, 0) / n;
+  const type = pick(p < 0.4 ? [0, 1] : [0, 1, 2]);
+  const tab = `<table class="mm-tab"><tr>${notes.map((_, i) => `<td>${['Ali', 'Bea', 'Cléo', 'Dan', 'Eva', 'Félix', 'Gina'][i]}</td>`).join('')}</tr><tr>${notes.map((x) => `<td>${x}</td>`).join('')}</tr></table>`;
+  if (type === 0) return { enonce: `Voici les notes de ${n} élèves.${tab}Quelle est la <strong>moyenne</strong> de ces notes ?`, saisie: { type: 'nombre', bonne: moy }, rep: fmtN(moy), notion, voix: `Voici les notes de ${n} élèves : ${notes.join(', ')}. Quelle est la moyenne de ces notes ?`,
+    explication: `Moyenne = <strong>somme des valeurs ÷ nombre de valeurs</strong>. Somme : ${notes.join(' + ')} = ${moy * n}. Moyenne : ${moy * n} ÷ ${n} = <strong>${fmtN(moy)}</strong>.` };
+  const couleurs = ['rouge', 'bleu', 'vert', 'jaune'], eff = couleurs.map(() => rnd(1, 9)), tot = eff.reduce((t, x) => t + x, 0);
+  const tab2 = `<table class="mm-tab"><tr><td>couleur préférée</td>${couleurs.map((c) => `<td>${c}</td>`).join('')}</tr><tr><td>effectif</td>${eff.map((x) => `<td>${x}</td>`).join('')}</tr></table>`;
+  const i = rnd(0, 3);
+  if (type === 1) return { enonce: `On a demandé leur couleur préférée à des élèves.${tab2}Combien d'élèves ont été interrogés en tout (l'<strong>effectif total</strong>) ?`, saisie: { type: 'nombre', bonne: tot, unite: 'élèves' }, rep: String(tot), notion, voix: `On a demandé leur couleur préférée à des élèves. Rouge : ${eff[0]}, bleu : ${eff[1]}, vert : ${eff[2]}, jaune : ${eff[3]}. Combien d'élèves ont été interrogés en tout ?`,
+    explication: `L'effectif total est la somme des effectifs : ${eff.join(' + ')} = <strong>${tot}</strong>.` };
+  /* fréquence : on choisit un total de 20, 25 ou 50 pour un pourcentage juste */
+  const T = pick([20, 25, 50]), e2 = [rnd(2, T / 3), rnd(2, T / 3), rnd(2, T / 4)]; e2.push(T - e2.reduce((t, x) => t + x, 0));
+  const tab3 = `<table class="mm-tab"><tr><td>couleur préférée</td>${couleurs.map((c) => `<td>${c}</td>`).join('')}</tr><tr><td>effectif</td>${e2.map((x) => `<td>${x}</td>`).join('')}</tr></table>`;
+  const f = (e2[i] / T) * 100;
+  return { enonce: `${tab3}Quelle est la <strong>fréquence</strong> de la couleur ${couleurs[i]}, en pourcentage ?`, saisie: { type: 'nombre', bonne: f, unite: '%' }, rep: `${fmtN(f)} pour cent`, notion, voix: `Rouge : ${e2[0]}, bleu : ${e2[1]}, vert : ${e2[2]}, jaune : ${e2[3]}. Quelle est la fréquence de la couleur ${couleurs[i]}, en pourcentage ?`,
+    explication: `Fréquence = effectif ÷ effectif total = ${e2[i]} ÷ ${T} = ${fmtN(e2[i] / T)}, c'est-à-dire <strong>${fmtN(f)} %</strong> (on multiplie par 100).` };
+};
+
+/* --- Les probabilités --- */
+function figUrne(boules) {
+  const cs = { rouge: ROUGE, bleue: BLEU, verte: VERT, jaune: JAUNE };
+  let s = `<path d="M60 40 Q40 200 160 205 Q280 200 260 40" fill="rgba(255,255,255,.05)" stroke="${CRAIE}" stroke-width="3.5"/><line x1="50" y1="40" x2="270" y2="40" stroke="${CRAIE}" stroke-width="3.5"/>`;
+  const L = []; Object.entries(boules).forEach(([c, n]) => { for (let i = 0; i < n; i += 1) L.push(c); });
+  shuffle(L).forEach((c, i) => { const col = i % 6, lig = Math.floor(i / 6); s += `<circle cx="${95 + col * 27 + (lig % 2) * 12}" cy="${180 - lig * 26}" r="12" fill="${cs[c]}" stroke="${CRAIE}" stroke-width="1.5"/>`; });
+  return svgArdoise(320, 220, s, 'Une urne avec des boules');
+}
+GEN.proba = (p) => {
+  const notion = 'Les probabilités';
+  if (Math.random() < 0.3) {
+    const E = pick([
+      ['Obtenir 7 en lançant un dé ordinaire à 6 faces.', 'impossible', 'Un dé ordinaire a les faces 1 à 6 : obtenir 7 est <strong>impossible</strong>, sa probabilité est 0.'],
+      ['Obtenir un nombre plus petit que 10 en lançant un dé à 6 faces.', 'certain', 'Toutes les faces (1 à 6) sont plus petites que 10 : c\'est <strong>certain</strong>, la probabilité est 1.'],
+      ['Obtenir « pile » en lançant une pièce.', 'une chance sur deux', 'Deux issues, pile ou face, aussi probables l\'une que l\'autre : <strong>une chance sur deux</strong>, 1/2.'],
+      ['Obtenir 6 en lançant un dé à 6 faces.', 'peu probable', 'Une seule face sur six : c\'est <strong>peu probable</strong> (1/6), mais possible.'],
+      ['Tirer une boule rouge dans un sac qui contient 9 boules rouges et 1 bleue.', 'très probable', 'Neuf boules sur dix sont rouges : c\'est <strong>très probable</strong> (9/10).'],
+    ]);
+    return { enonce: `<span class="mm-pb">${E[0]}</span>Cet événement est…`, choix: ['impossible', 'peu probable', 'une chance sur deux', 'très probable', 'certain'].map((v) => ({ v, html: capitalize(v) })), bonne: E[1], rep: E[1], notion, explication: E[2] };
+  }
+  const b = { rouge: rnd(1, 5), bleue: rnd(1, 5), verte: rnd(0, 4) };
+  if (!b.verte) delete b.verte;
+  const tot = Object.values(b).reduce((t, x) => t + x, 0), c = pick(Object.keys(b)), n = b[c];
+  const opts = new Set([`${n}/${tot}`]);
+  [[n, tot - n], [1, tot], [n, Object.keys(b).length], [tot - n, tot]].forEach(([x, y]) => { if (opts.size < 4 && y > 0 && x > 0 && !(x === n && y === tot)) opts.add(`${x}/${y}`); });
+  while (opts.size < 4) opts.add(`${rnd(1, tot)}/${tot + rnd(1, 3)}`);
+  const g = pgcd(n, tot);
+  return { enonce: `On tire une boule au hasard dans ce sac. Quelle est la probabilité de tirer une boule <strong>${c}</strong> ?`, figure: figUrne(b),
+    choix: shuffle([...opts]).map((v) => ({ v, html: fracHtml(...v.split('/')) })), bonne: `${n}/${tot}`, rep: `${n} sur ${tot}`, notion,
+    explication: `Il y a ${tot} boules en tout, dont ${n} ${c}${n > 1 ? 's' : ''}. Chaque boule a la même chance d'être tirée : la probabilité est ${fracHtml(n, tot)}${g > 1 ? ` = ${fracHtml(n / g, tot / g)}` : ''}, c'est-à-dire <strong>nombre de cas favorables ÷ nombre de cas possibles</strong>.` };
+};
+
+
+/* ============================================================
+   6e – 5e : ESPACE ET GÉOMÉTRIE
+   ============================================================ */
+/* segment [AB], droite (AB) ou demi-droite [AB) */
+function figNotation(type) {
+  const A = [100, 140], B = [220, 90], dx = B[0] - A[0], dy = B[1] - A[1];
+  const P = (t) => [A[0] + dx * t, A[1] + dy * t];
+  const [d, f] = type === 'segment' ? [0, 1] : type === 'droite' ? [-0.8, 1.8] : [0, 1.8];
+  const D = P(d), F = P(f);
+  let s = `<line x1="${D[0]}" y1="${D[1]}" x2="${F[0]}" y2="${F[1]}" stroke="${CRAIE}" stroke-width="3.5" stroke-linecap="round"/>`;
+  [[A, 'A'], [B, 'B']].forEach(([Q, n]) => { s += `<path d="M${Q[0] - 6} ${Q[1] - 6} l12 12 M${Q[0] + 6} ${Q[1] - 6} l-12 12" stroke="${JAUNE}" stroke-width="3"/>${txt(Q[0] - 4, Q[1] + 22, n, { taille: 20, gras: true, c: JAUNE })}`; });
+  return svgArdoise(320, 220, s, 'Deux points et un trait');
+}
+/* un triangle à l'échelle d'après ses angles, avec deux angles connus et le troisième à trouver */
+function figTriangleAngles(al, be) {
+  const ga = 180 - al - be, r = Math.PI / 180, c = 230, b = (c * Math.sin(be * r)) / Math.sin(ga * r);
+  let P = [[0, 0], [c, 0], [b * Math.cos(al * r), -b * Math.sin(al * r)]];
+  P = centre(P, 320, 230);
+  const lab = (i, t, col) => { const Q = P[i], cx = (P[0][0] + P[1][0] + P[2][0]) / 3, cy = (P[0][1] + P[1][1] + P[2][1]) / 3, dx = cx - Q[0], dy = cy - Q[1], l = Math.hypot(dx, dy); return txt(Q[0] + (dx / l) * 34, Q[1] + (dy / l) * 30, t, { taille: 16, gras: true, c: col }); };
+  return figPolygone(P, null, { w: 320, h: 230 }).replace('</svg>', `${lab(0, `${al}°`, JAUNE)}${lab(1, `${be}°`, JAUNE)}${lab(2, '?', ROSE)}</svg>`);
+}
+
+/* --- Les notations --- */
+GEN.nota = (p) => {
+  const notion = 'Les notations';
+  if (Math.random() < 0.35) {
+    const F = pick([
+      ['Le point M appartient à la droite (d). On écrit…', 'M ∈ (d)', ['M ∉ (d)', 'M = (d)', '(d) ∈ M'], 'Le symbole <strong>∈</strong> veut dire « appartient à » : <strong>M ∈ (d)</strong>. Le symbole ∉ veut dire « n\'appartient pas à ».'],
+      ['La longueur du segment [AB] s\'écrit…', 'AB', ['[AB]', '(AB)', '[AB)'], 'La <strong>longueur</strong> s\'écrit sans crochets : <strong>AB</strong> = 5 cm. [AB] désigne le segment lui-même.'],
+      ['Le milieu d\'un segment [AB] est le point qui…', 'est sur [AB], à égale distance de A et de B', ['est à égale distance de A et de B, n\'importe où', 'est l\'une des extrémités'], 'Le milieu I de [AB] est <strong>sur le segment</strong> et vérifie <strong>IA = IB</strong>.'],
+    ]);
+    return { enonce: F[0], choix: shuffle([F[1], ...F[2]]).map((v) => ({ v, html: v })), bonne: F[1], rep: F[1], notion, explication: F[3] };
+  }
+  const t = pick(['segment', 'droite', 'demi']);
+  const noms = { segment: '[AB]', droite: '(AB)', demi: '[AB)' };
+  return { enonce: 'Quelle est la bonne notation pour ce qui est tracé ?', figure: figNotation(t), choix: Object.entries(noms).map(([v, h]) => ({ v, html: `${h} : ${{ segment: 'le segment', droite: 'la droite', demi: 'la demi-droite' }[v]}` })), bonne: t, rep: { segment: 'le segment A B', droite: 'la droite A B', demi: 'la demi-droite A B' }[t], notion,
+    explication: { segment: 'Le trait s\'arrête en A et en B : c\'est le <strong>segment [AB]</strong>. Les crochets « ferment » le trait des deux côtés.', droite: 'Le trait continue au-delà de A et de B, sans fin : c\'est la <strong>droite (AB)</strong>. Les parenthèses montrent qu\'elle est « ouverte » des deux côtés.', demi: 'Le trait commence en A et continue sans fin après B : c\'est la <strong>demi-droite [AB)</strong>. Le crochet est du côté de A, où elle commence.' }[t] };
+};
+
+/* --- La médiatrice et la distance d'un point à une droite --- */
+GEN.medi = (p) => {
+  const notion = 'La médiatrice';
+  const type = pick([0, 0, 1, 2]);
+  if (type === 0) {
+    const d = rnd(3, 12);
+    return { enonce: `Le point M est sur la <strong>médiatrice</strong> du segment [AB], et <strong>MA = ${d} cm</strong>. Combien mesure MB ?`, saisie: { type: 'nombre', bonne: d, unite: 'cm' }, rep: `${d} centimètres`, notion,
+      explication: `Tout point de la médiatrice de [AB] est <strong>à égale distance</strong> de A et de B : MB = MA = <strong>${d} cm</strong>.` };
+  }
+  if (type === 1) {
+    const F = pick([
+      ['La médiatrice d\'un segment est la droite…', 'perpendiculaire au segment en son milieu', ['parallèle au segment', 'qui passe par une extrémité du segment'], 'La médiatrice de [AB] est la droite <strong>perpendiculaire à [AB] en son milieu</strong>.'],
+      ['Pour tracer la médiatrice d\'un segment avec le compas, on trace…', 'deux arcs de même rayon, centrés en A et en B', ['un cercle de centre le milieu', 'un seul arc centré en A'], 'On trace <strong>deux arcs de même rayon</strong>, centrés en A et en B ; leurs deux points d\'intersection sont sur la médiatrice.'],
+      ['La distance d\'un point à une droite se mesure…', 'perpendiculairement à la droite', ['parallèlement à la droite', 'jusqu\'à n\'importe quel point de la droite'], 'C\'est la plus courte distance : on la mesure <strong>perpendiculairement</strong> à la droite, avec l\'équerre.'],
+    ]);
+    return { enonce: F[0], choix: shuffle([F[1], ...F[2]]).map((v) => ({ v, html: capitalize(v) })), bonne: F[1], rep: F[1], notion, explication: F[3] };
+  }
+  const ab = 2 * rnd(2, 8);
+  return { enonce: `La médiatrice de [AB] coupe ce segment en I. <strong>AB = ${ab} cm</strong>. Combien mesure AI ?`, saisie: { type: 'nombre', bonne: ab / 2, unite: 'cm' }, rep: `${ab / 2} centimètres`, notion,
+    explication: `La médiatrice passe par le <strong>milieu</strong> de [AB] : I est le milieu, donc AI = ${ab} ÷ 2 = <strong>${ab / 2} cm</strong>.` };
+};
+
+/* --- Les symétries : centrale (5e) et axiale (6e, propriétés) --- */
+GEN.symc = (p) => {
+  const notion = 'Les symétries';
+  if (p < 0.35 || Math.random() < 0.3) {
+    const F = pick([
+      ['Le symétrique d\'un segment de 5 cm par une symétrie mesure…', '5 cm', ['10 cm', '2,5 cm', 'cela dépend de l\'axe'], 'Une symétrie (axiale ou centrale) <strong>conserve les longueurs</strong> : le symétrique mesure aussi <strong>5 cm</strong>.'],
+      ['Le symétrique d\'un angle de 40° mesure…', '40°', ['140°', '80°', '50°'], 'Une symétrie <strong>conserve les angles</strong> : l\'angle symétrique mesure aussi <strong>40°</strong>.'],
+      ['Une figure et sa symétrique ont…', 'la même aire', ['des aires différentes', 'une aire double'], 'Une symétrie <strong>conserve les aires</strong> : la figure n\'est ni agrandie ni réduite.'],
+      ['Dans la symétrie de centre O, le point O est…', 'le milieu du segment qui joint un point et son symétrique', ['sur la médiatrice de ce segment', 'toujours sur la figure'], 'A\' est le symétrique de A par rapport à O quand <strong>O est le milieu de [AA\']</strong>.'],
+      ['La symétrie centrale revient à faire tourner la figure…', 'd\'un demi-tour autour du centre', ['d\'un quart de tour', 'autour d\'un axe'], 'La symétrie centrale, c\'est un <strong>demi-tour</strong> (180°) autour du centre O.'],
+    ]);
+    return { enonce: F[0], choix: shuffle([F[1], ...F[2]]).map((v) => ({ v, html: capitalize(v) })), bonne: F[1], rep: F[1], notion, explication: F[3] };
+  }
+  const n = 7, O = [3, 3];
+  let A; do { A = [rnd(0, n - 1), rnd(0, n - 1)]; } while (A[0] === O[0] && A[1] === O[1]);
+  const S = [2 * O[0] - A[0], 2 * O[1] - A[1]], bonne = nomCase(S[0], S[1], n);
+  const opts = new Set([bonne]);
+  [[A[0], 2 * O[1] - A[1]], [2 * O[0] - A[0], A[1]], [S[0] + 1, S[1]], [S[0], S[1] - 1]].forEach(([x, y]) => { if (opts.size < 4 && x >= 0 && y >= 0 && x < n && y < n && !(x === A[0] && y === A[1])) opts.add(nomCase(x, y, n)); });
+  while (opts.size < 4) opts.add(nomCase(rnd(0, n - 1), rnd(0, n - 1), n));
+  return { enonce: `Le point ★ est en <strong>${nomCase(A[0], A[1], n)}</strong>. Où se trouve son symétrique par rapport au point <strong>O</strong> (en ${nomCase(O[0], O[1], n)}) ?`, figure: figQuadrillage(n, n, [], { reperes: true, icones: [[A[0], A[1], '★'], [O[0], O[1], 'O']] }),
+    figureCorrection: figQuadrillage(n, n, [], { reperes: true, icones: [[A[0], A[1], '★'], [O[0], O[1], 'O'], [S[0], S[1], '☆']], chemin: [A, O, S] }),
+    choix: shuffle([...opts]).map((v) => ({ v, html: v })), bonne, rep: bonne, notion,
+    explication: `Pour aller de ★ à O, on se déplace de ${Math.abs(O[0] - A[0])} case${Math.abs(O[0] - A[0]) > 1 ? 's' : ''} ${O[0] >= A[0] ? 'vers la droite' : 'vers la gauche'} et de ${Math.abs(O[1] - A[1])} case${Math.abs(O[1] - A[1]) > 1 ? 's' : ''} ${O[1] >= A[1] ? 'vers le bas' : 'vers le haut'}. On refait le même déplacement à partir de O : on arrive en <strong>${bonne}</strong>. O est le milieu du segment qui joint les deux points.` };
+};
+
+/* --- Les angles : somme dans un triangle, angles et parallèles (5e) --- */
+GEN.angles65 = (p) => {
+  const notion = 'Les angles';
+  const type = pick(p < 0.4 ? [0, 0, 1] : [0, 1, 2, 3]);
+  if (type === 0) {
+    const al = rnd(30, 90), be = rnd(25, 150 - al), ga = 180 - al - be;
+    return { enonce: 'Combien mesure l\'angle marqué <strong style="color:#ff9ec7">?</strong> dans ce triangle ?', figure: figTriangleAngles(al, be), saisie: { type: 'nombre', bonne: ga, unite: '°' }, rep: `${ga} degrés`, notion, voix: `Dans ce triangle, deux angles mesurent ${al} et ${be} degrés. Combien mesure le troisième ?`,
+      explication: `La <strong>somme des angles d'un triangle vaut 180°</strong>. ${al} + ${be} = ${al + be}, et 180 − ${al + be} = <strong>${ga}°</strong>.` };
+  }
+  if (type === 1) {
+    const base = rnd(30, 75), sommet = 180 - 2 * base, versSommet = Math.random() < 0.5;
+    return { enonce: versSommet ? `Un triangle <strong>isocèle</strong> a deux angles à la base de <strong>${base}°</strong>. Combien mesure l'angle au sommet principal ?` : `Dans un triangle <strong>isocèle</strong>, l'angle au sommet principal mesure <strong>${sommet}°</strong>. Combien mesure chacun des deux angles à la base ?`,
+      saisie: { type: 'nombre', bonne: versSommet ? sommet : base, unite: '°' }, rep: `${versSommet ? sommet : base} degrés`, notion,
+      explication: versSommet ? `Les deux angles à la base sont égaux : ${base} + ${base} = ${2 * base}. Le troisième : 180 − ${2 * base} = <strong>${sommet}°</strong>.` : `Il reste 180 − ${sommet} = ${2 * base}° pour les deux angles à la base, qui sont égaux : ${2 * base} ÷ 2 = <strong>${base}°</strong>.` };
+  }
+  if (type === 2) {
+    const a = rnd(35, 145), sorte = pick(['alternes-internes', 'correspondants']);
+    return { enonce: `Deux droites <strong>parallèles</strong> sont coupées par une sécante. Deux angles <strong>${sorte}</strong> sont formés ; l'un mesure <strong>${a}°</strong>. Combien mesure l'autre ?`, saisie: { type: 'nombre', bonne: a, unite: '°' }, rep: `${a} degrés`, notion,
+      explication: `Quand deux droites sont <strong>parallèles</strong>, les angles ${sorte} qu'elles forment avec une sécante sont <strong>égaux</strong> : l'autre mesure aussi <strong>${a}°</strong>. (Et réciproquement : si ces angles sont égaux, les droites sont parallèles.)` };
+  }
+  const a = rnd(20, 160), sorte = pick(['adjacents supplémentaires', 'opposés par le sommet']);
+  const r = sorte.startsWith('opposés') ? a : 180 - a;
+  return { enonce: `Deux droites se coupent. Un angle mesure <strong>${a}°</strong>. Combien mesure l'angle qui lui est <strong>${sorte.startsWith('opposés') ? 'opposé par le sommet' : 'adjacent'}</strong> (sur la même droite) ?`, saisie: { type: 'nombre', bonne: r, unite: '°' }, rep: `${r} degrés`, notion,
+    explication: sorte.startsWith('opposés') ? `Deux angles <strong>opposés par le sommet</strong> sont égaux : <strong>${a}°</strong>.` : `Ensemble, ces deux angles forment un angle plat (180°) : 180 − ${a} = <strong>${r}°</strong>. On dit qu'ils sont supplémentaires.` };
+};
+
+/* --- Les parallélogrammes (5e) --- */
+GEN.para = (p) => {
+  const notion = 'Les parallélogrammes';
+  const type = pick([0, 1, 2, 3]);
+  if (type === 0) {
+    const L = rnd(3, 12);
+    return { enonce: `ABCD est un <strong>parallélogramme</strong> et <strong>AB = ${L} cm</strong>. Combien mesure CD ?`, saisie: { type: 'nombre', bonne: L, unite: 'cm' }, rep: `${L} centimètres`, notion,
+      explication: `Dans un parallélogramme, les <strong>côtés opposés ont la même longueur</strong> : CD = AB = <strong>${L} cm</strong>.` };
+  }
+  if (type === 1) {
+    const o = rnd(2, 9);
+    return { enonce: `ABCD est un <strong>parallélogramme</strong> de centre O, et <strong>OA = ${o} cm</strong>. Combien mesure la diagonale AC ?`, saisie: { type: 'nombre', bonne: 2 * o, unite: 'cm' }, rep: `${2 * o} centimètres`, notion,
+      explication: `Les <strong>diagonales d'un parallélogramme se coupent en leur milieu</strong> : O est le milieu de [AC], donc AC = 2 × ${o} = <strong>${2 * o} cm</strong>.` };
+  }
+  if (type === 2) {
+    const a = rnd(40, 140), opp = Math.random() < 0.5;
+    return { enonce: `Dans le parallélogramme ABCD, l'angle en A mesure <strong>${a}°</strong>. Combien mesure l'angle en <strong>${opp ? 'C' : 'B'}</strong> ?`, saisie: { type: 'nombre', bonne: opp ? a : 180 - a, unite: '°' }, rep: `${opp ? a : 180 - a} degrés`, notion,
+      explication: opp ? `Les <strong>angles opposés</strong> d'un parallélogramme sont égaux : l'angle en C mesure <strong>${a}°</strong>.` : `Deux angles <strong>consécutifs</strong> d'un parallélogramme sont supplémentaires (leur somme fait 180°) : 180 − ${a} = <strong>${180 - a}°</strong>.` };
+  }
+  const F = pick([
+    ['Un parallélogramme dont les diagonales ont la même longueur est…', 'un rectangle', ['un losange', 'un trapèze'], 'Un parallélogramme aux <strong>diagonales de même longueur</strong> est un <strong>rectangle</strong>.'],
+    ['Un parallélogramme dont les diagonales sont perpendiculaires est…', 'un losange', ['un rectangle', 'un trapèze'], 'Un parallélogramme aux <strong>diagonales perpendiculaires</strong> est un <strong>losange</strong>.'],
+    ['Un parallélogramme qui a un angle droit est…', 'un rectangle', ['un losange', 'un carré, toujours'], 'Avec un angle droit, tous ses angles sont droits : c\'est un <strong>rectangle</strong> (un carré seulement si, en plus, ses côtés sont égaux).'],
+    ['Un parallélogramme est un quadrilatère dont…', 'les côtés opposés sont parallèles deux à deux', ['tous les côtés sont égaux', 'les diagonales sont perpendiculaires'], 'Définition : un parallélogramme a ses <strong>côtés opposés parallèles deux à deux</strong>.'],
+  ]);
+  return { enonce: F[0], choix: shuffle([F[1], ...F[2]]).map((v) => ({ v, html: capitalize(v) })), bonne: F[1], rep: F[1], notion, explication: F[3] };
+};
+
+
+/* ============================================================
    LES QUIZ DE COURS
    À la fin de chaque domaine et de chaque niveau : des questions de cours, toujours les mêmes,
    tirées au hasard dans la banque (12 par partie). Elles reviennent d'une partie à l'autre,
@@ -2084,10 +2571,81 @@ const NOTION_QUIZ = { 'ce-nombres': 'Cours : nombres et calculs', 'ce-grandeurs'
 function questionsQuiz(cle, n) {
   return shuffle(QUIZ[cle]).slice(0, n).map((x) => {
     const base = { enonce: `<span class="mm-cours">Question de cours</span>${x.q.replace(/…/, '<span class="mm-trou">…</span>')}`, voix: x.v || (typeof x.r === 'number' ? x.q : x.q.replace(/…/g, '')), explication: x.e, notion: NOTION_QUIZ[cle], court: x.q.replace(/<[^>]+>/g, '') };
-    if (typeof x.r === 'number') return { ...base, saisie: { type: 'nombre', bonne: x.r, unite: x.u }, rep: fmtN(x.r) };
+    if (typeof x.r === 'number') return { ...base, saisie: { type: 'nombre', bonne: x.r, unite: x.u, neg: x.r < 0 }, rep: fmtN(x.r) };
     return { ...base, choix: shuffle([x.r, ...x.f]).map((v) => ({ v, html: v })), bonne: x.r, rep: x.r };
   });
 }
+
+
+/* --- Les quiz de cours du 6e – 5e (même principe que ceux du CE et du CM) --- */
+Object.assign(QUIZ, {
+  '65-nombres': [
+    { q: 'Dans un calcul sans parenthèses, on effectue d\'abord…', r: 'les multiplications et les divisions', f: ['les additions et les soustractions', 'les calculs de gauche à droite, dans l\'ordre'], e: 'Priorité : <strong>× et ÷ avant + et −</strong>. 2 + 3 × 4 = 2 + 12 = 14.' },
+    { q: 'Dans un calcul avec des parenthèses, on commence par…', r: 'les calculs entre parenthèses', f: ['les multiplications', 'le calcul le plus à gauche'], e: 'On commence toujours par <strong>les parenthèses</strong>.' },
+    { q: 'Un nombre est divisible par 3 quand…', r: 'la somme de ses chiffres est dans la table de 3', f: ['il se termine par 3', 'son chiffre des unités est pair'], e: 'Divisible par 3 : <strong>la somme de ses chiffres est dans la table de 3</strong> (471 : 4 + 7 + 1 = 12).' },
+    { q: 'Un nombre est divisible par 9 quand…', r: 'la somme de ses chiffres est dans la table de 9', f: ['il se termine par 9', 'il est divisible par 3'], e: 'Divisible par 9 : <strong>la somme de ses chiffres est dans la table de 9</strong>.' },
+    { q: 'Un nombre est divisible par 5 quand…', r: 'il se termine par 0 ou 5', f: ['il se termine par 5 seulement', 'la somme de ses chiffres vaut 5'], e: 'Divisible par 5 : son chiffre des unités est <strong>0 ou 5</strong>.' },
+    { q: 'Un nombre est divisible par 2 quand…', r: 'il est pair', f: ['il se termine par 2', 'il est plus grand que 2'], e: 'Divisible par 2 : <strong>il est pair</strong> (unités 0, 2, 4, 6 ou 8).' },
+    { q: 'La fraction a/b est égale au quotient…', r: 'a ÷ b', f: ['b ÷ a', 'a × b'], e: 'a/b = <strong>a ÷ b</strong> : 3/4 = 3 ÷ 4 = 0,75.' },
+    { q: 'Pour simplifier une fraction, on…', r: 'divise le numérateur et le dénominateur par un même nombre', f: ['soustrait le même nombre en haut et en bas', 'divise seulement le numérateur'], e: 'On <strong>divise le numérateur et le dénominateur par le même nombre</strong> : 6/8 = 3/4.' },
+    { q: 'Pour additionner deux fractions de même dénominateur, on…', r: 'additionne les numérateurs et garde le dénominateur', f: ['additionne les numérateurs et les dénominateurs', 'multiplie les numérateurs'], e: '2/7 + 3/7 = <strong>5/7</strong> : on additionne les numérateurs, le dénominateur reste le même.' },
+    { q: 'Calcule 2/5 + 1/5. Quel est le numérateur, sur 5 ?', r: 3, e: '2/5 + 1/5 = <strong>3/5</strong>.' },
+    { q: 'Un nombre négatif est toujours…', r: 'plus petit qu\'un nombre positif', f: ['plus grand qu\'un nombre positif', 'plus petit que −10'], e: 'Un négatif est toujours <strong>plus petit qu\'un positif</strong> : il est à gauche de zéro.' },
+    { q: 'Entre −8 et −3, le plus petit est…', r: '−8', f: ['−3', 'ils sont égaux'], e: '<strong>−8</strong> est plus loin à gauche de zéro que −3, donc il est plus petit.' },
+    { q: 'L\'opposé de −6 est…', r: '6', f: ['−6', '1/6'], e: 'L\'opposé de −6 est <strong>6</strong> : même distance à zéro, signe contraire.' },
+    { q: 'Soustraire un nombre relatif, c\'est…', r: 'ajouter son opposé', f: ['ajouter ce nombre', 'changer le signe du résultat'], e: 'Soustraire, c\'est <strong>ajouter l\'opposé</strong> : 3 − (−5) = 3 + 5 = 8.' },
+    { q: 'Calcule (−4) + (−3).', r: -7, e: 'Même signe : on additionne les distances à zéro et on garde le signe : <strong>−7</strong>.' },
+    { q: 'Calcule 5 + (−9).', r: -4, e: 'Signes contraires : 9 − 5 = 4, signe de −9 (le plus loin de zéro) : <strong>−4</strong>.' },
+    { q: '3x veut dire…', r: '3 × x', f: ['3 + x', 'x × x × x'], e: '<strong>3x = 3 × x</strong> : on peut supprimer le signe × devant une lettre.' },
+    { q: 'x² veut dire…', r: 'x × x', f: ['2 × x', 'x + 2'], e: '<strong>x² = x × x</strong> (x au carré).' },
+    { q: 'Réduire 4x + 3x donne…', r: '7x', f: ['7x²', '12x'], e: '4x + 3x = (4 + 3)x = <strong>7x</strong>.' },
+    { q: 'Calcule 2x + 5 pour x = 3.', r: 11, e: '2 × 3 + 5 = 6 + 5 = <strong>11</strong>.' },
+  ],
+  '65-grandeurs': [
+    { q: 'La longueur d\'un cercle de rayon R se calcule avec…', r: '2 × π × R', f: ['π × R × R', '2 × R'], e: 'Longueur du cercle = <strong>2 × π × R</strong> (ou π × diamètre).' },
+    { q: 'L\'aire d\'un disque de rayon R se calcule avec…', r: 'π × R × R', f: ['2 × π × R', 'π × 2 × R'], e: 'Aire du disque = <strong>π × R²</strong>.' },
+    { q: 'Quelle valeur approchée de π utilise-t-on souvent ?', r: '3,14', f: ['3,41', '1,414'], e: 'π ≈ <strong>3,14</strong> (π = 3,14159…).' },
+    { q: 'L\'aire d\'un triangle se calcule avec…', r: 'base × hauteur ÷ 2', f: ['base × hauteur', 'somme des trois côtés'], e: 'Aire du triangle = <strong>base × hauteur ÷ 2</strong>.' },
+    { q: 'L\'aire d\'un parallélogramme se calcule avec…', r: 'base × hauteur', f: ['base × hauteur ÷ 2', 'côté × côté'], e: 'Aire du parallélogramme = <strong>base × hauteur</strong>.' },
+    { q: 'Le volume d\'un cube d\'arête c se calcule avec…', r: 'c × c × c', f: ['c × c', '6 × c'], e: 'Volume du cube = <strong>c × c × c</strong> (c³).' },
+    { q: 'Le volume d\'un prisme droit ou d\'un cylindre se calcule avec…', r: 'aire de la base × hauteur', f: ['aire de la base × hauteur ÷ 3', 'périmètre de la base × hauteur'], e: 'Prisme droit et cylindre : <strong>aire de la base × hauteur</strong>.' },
+    { q: '1 L = … dm³', r: 1, u: 'dm³', e: '<strong>1 L = 1 dm³</strong>.' },
+    { q: '1 dm³ = … cm³', r: 1000, u: 'cm³', e: '1 dm³ = <strong>1 000 cm³</strong>.' },
+    { q: '1 cm³ = … mL', r: 1, u: 'mL', e: '<strong>1 cm³ = 1 mL</strong>.' },
+    { q: 'Dans un tableau de proportionnalité, le nombre par lequel on multiplie s\'appelle…', r: 'le coefficient de proportionnalité', f: ['le quotient', 'le pourcentage'], e: 'C\'est <strong>le coefficient de proportionnalité</strong>.' },
+    { q: 'Prendre 20 % d\'un nombre, c\'est le multiplier par…', r: '20/100', f: ['20', '100/20'], e: '20 % = <strong>20/100</strong> = 0,2.' },
+    { q: 'Combien font 10 % de 350 ?', r: 35, e: '10 %, c\'est le dixième : 350 ÷ 10 = <strong>35</strong>.' },
+    { q: 'La moyenne d\'une série se calcule avec…', r: 'somme des valeurs ÷ nombre de valeurs', f: ['plus grande valeur − plus petite valeur', 'valeur du milieu'], e: 'Moyenne = <strong>somme des valeurs ÷ nombre de valeurs</strong>.' },
+    { q: 'La fréquence d\'une valeur se calcule avec…', r: 'effectif ÷ effectif total', f: ['effectif × effectif total', 'effectif total ÷ effectif'], e: 'Fréquence = <strong>effectif ÷ effectif total</strong> (×100 pour un pourcentage).' },
+    { q: 'Une probabilité est toujours comprise entre…', r: '0 et 1', f: ['0 et 100', '−1 et 1'], e: 'Une probabilité est entre <strong>0 (impossible) et 1 (certain)</strong>.' },
+    { q: 'La probabilité d\'un événement impossible est…', r: 0, e: 'Un événement impossible a une probabilité de <strong>0</strong>.' },
+    { q: 'La probabilité d\'un événement certain est…', r: 1, e: 'Un événement certain a une probabilité de <strong>1</strong>.' },
+    { q: 'La probabilité d\'obtenir 3 en lançant un dé à 6 faces est…', r: '1/6', f: ['1/3', '3/6'], e: 'Une face favorable sur 6 : <strong>1/6</strong>.' },
+    { q: 'Un ratio de 2 : 3 entre garçons et filles veut dire…', r: '2 garçons pour 3 filles', f: ['2 garçons et 3 filles en tout', '2 filles pour 3 garçons'], e: '<strong>2 garçons pour 3 filles</strong>, à chaque fois.' },
+  ],
+  '65-geometrie': [
+    { q: '[AB] désigne…', r: 'le segment d\'extrémités A et B', f: ['la droite passant par A et B', 'la longueur du segment'], e: '[AB] est <strong>le segment</strong> ; (AB) la droite ; [AB) la demi-droite ; AB la longueur.' },
+    { q: '(AB) désigne…', r: 'la droite passant par A et B', f: ['le segment d\'extrémités A et B', 'la demi-droite d\'origine A'], e: '(AB) est <strong>la droite</strong>, illimitée des deux côtés.' },
+    { q: '[AB) désigne…', r: 'la demi-droite d\'origine A passant par B', f: ['la demi-droite d\'origine B passant par A', 'le segment [AB]'], e: '[AB) est <strong>la demi-droite d\'origine A</strong>, qui passe par B.' },
+    { q: 'Le symbole ∈ veut dire…', r: 'appartient à', f: ['est égal à', 'est parallèle à'], e: '∈ veut dire <strong>« appartient à »</strong>.' },
+    { q: 'La médiatrice d\'un segment est…', r: 'la droite perpendiculaire au segment en son milieu', f: ['la droite parallèle au segment', 'le milieu du segment'], e: 'La médiatrice est <strong>perpendiculaire au segment en son milieu</strong>.' },
+    { q: 'Un point de la médiatrice de [AB] est…', r: 'à égale distance de A et de B', f: ['plus près de A que de B', 'toujours le milieu de [AB]'], e: 'Tout point de la médiatrice est <strong>à égale distance de A et de B</strong>.' },
+    { q: 'La symétrie axiale et la symétrie centrale conservent…', r: 'les longueurs, les angles et les aires', f: ['seulement les longueurs', 'seulement les aires'], e: 'Elles conservent <strong>les longueurs, les angles et les aires</strong>.' },
+    { q: 'La symétrie centrale de centre O, c\'est…', r: 'un demi-tour autour de O', f: ['un quart de tour autour de O', 'un pliage le long d\'une droite'], e: 'La symétrie centrale est <strong>un demi-tour autour de O</strong>.' },
+    { q: 'Si A\' est le symétrique de A par rapport à O, alors O est…', r: 'le milieu de [AA\']', f: ['sur la médiatrice de [AA\'], loin du segment', 'confondu avec A'], e: 'O est <strong>le milieu de [AA\']</strong>.' },
+    { q: 'La somme des angles d\'un triangle vaut… (en degrés)', r: 180, u: '°', e: 'La somme des angles d\'un triangle vaut <strong>180°</strong>.' },
+    { q: 'Dans un triangle équilatéral, chaque angle mesure… (en degrés)', r: 60, u: '°', e: '180 ÷ 3 = <strong>60°</strong>.' },
+    { q: 'Les angles à la base d\'un triangle isocèle sont…', r: 'égaux', f: ['supplémentaires', 'droits'], e: 'Dans un triangle isocèle, les deux angles à la base sont <strong>égaux</strong>.' },
+    { q: 'Deux angles opposés par le sommet sont…', r: 'égaux', f: ['supplémentaires', 'complémentaires'], e: 'Deux angles opposés par le sommet sont <strong>égaux</strong>.' },
+    { q: 'Deux angles alternes-internes formés par deux droites parallèles sont…', r: 'égaux', f: ['supplémentaires', 'droits'], e: 'Avec des droites parallèles, les angles alternes-internes sont <strong>égaux</strong> (et les correspondants aussi).' },
+    { q: 'Dans un parallélogramme, les diagonales…', r: 'se coupent en leur milieu', f: ['sont toujours perpendiculaires', 'ont toujours la même longueur'], e: 'Les diagonales d\'un parallélogramme <strong>se coupent en leur milieu</strong>.' },
+    { q: 'Dans un parallélogramme, les côtés opposés…', r: 'sont parallèles et de même longueur', f: ['sont perpendiculaires', 'sont de longueurs différentes'], e: 'Les côtés opposés sont <strong>parallèles et de même longueur</strong>.' },
+    { q: 'Dans un parallélogramme, deux angles consécutifs ont pour somme… (en degrés)', r: 180, u: '°', e: 'Deux angles consécutifs sont supplémentaires : <strong>180°</strong>.' },
+    { q: 'Un parallélogramme dont les diagonales sont perpendiculaires est…', r: 'un losange', f: ['un rectangle', 'un trapèze'], e: 'Diagonales perpendiculaires : c\'est <strong>un losange</strong>.' },
+    { q: 'Un parallélogramme dont les diagonales ont la même longueur est…', r: 'un rectangle', f: ['un losange', 'un trapèze'], e: 'Diagonales de même longueur : c\'est <strong>un rectangle</strong>.' },
+  ],
+});
+Object.assign(NOTION_QUIZ, { '65-nombres': 'Cours : nombres et calculs', '65-grandeurs': 'Cours : grandeurs et mesures', '65-geometrie': 'Cours : espace et géométrie' });
 
 
 /* ------------------------------------------------------------
@@ -2214,7 +2772,7 @@ function updateProgress() {
   $('nat-score-label').textContent = scoreLabel(game.score);
   $('nat-progress-bar').style.width = `${(game.index / game.questions.length) * 100}%`;
 }
-const touchesClavier = (h) => ['7', '8', '9', '4', '5', '6', '1', '2', '3', ',', '0', '⌫', ...(h ? ['h'] : [])];
+const touchesClavier = (h, neg) => ['7', '8', '9', '4', '5', '6', '1', '2', '3', ',', '0', '⌫', ...(h ? ['h'] : []), ...(neg ? ['−'] : [])];
 function showQuestion() {
   if ('speechSynthesis' in window) speechSynthesis.cancel();
   const q = game.questions[game.index];
@@ -2226,9 +2784,9 @@ function showQuestion() {
   $('nat-instruction').textContent = q.saisie ? 'Écris ta réponse :' : 'Choisis la bonne réponse :';
   const z = $('mm-zone');
   if (q.saisie) {
-    z.innerHTML = `<form class="mm-saisie" id="mm-form" autocomplete="off"><input id="mm-input" name="mm-reponse-calcul" type="text" inputmode="${q.saisie.h ? 'text' : 'decimal'}" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore="true" data-bwignore="true" data-form-type="other" aria-label="Ta réponse" placeholder="${q.saisie.h ? '15 h 45' : '?'}" />${q.saisie.unite ? `<span class="mm-unite">${q.saisie.unite}</span>` : ''}</form>
+    z.innerHTML = `<form class="mm-saisie" id="mm-form" autocomplete="off"><input id="mm-input" name="mm-reponse-calcul" type="text" inputmode="${q.saisie.h || q.saisie.neg ? 'text' : 'decimal'}" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" data-1p-ignore="true" data-bwignore="true" data-form-type="other" aria-label="Ta réponse" placeholder="${q.saisie.h ? '15 h 45' : '?'}" />${q.saisie.unite ? `<span class="mm-unite">${q.saisie.unite}</span>` : ''}</form>
       <p id="mm-indice" class="mm-indice hidden" aria-live="polite"></p>
-      <div class="mm-clavier${q.saisie.h ? ' avec-h' : ''}">${touchesClavier(q.saisie.h).map((t) => `<button type="button" class="mm-touche" data-t="${t}">${t}</button>`).join('')}</div>
+      <div class="mm-clavier${q.saisie.h || q.saisie.neg ? ' avec-h' : ''}">${touchesClavier(q.saisie.h, q.saisie.neg).map((t) => `<button type="button" class="mm-touche" data-t="${t}">${t}</button>`).join('')}</div>
       <button type="button" class="primary-button mm-valider" id="mm-valider">Valider ✓</button>`;
     const inp = $('mm-input');
     z.querySelectorAll('.mm-touche').forEach((b) => b.addEventListener('click', () => {
@@ -2236,6 +2794,7 @@ function showQuestion() {
       const t = b.dataset.t;
       if (t === '⌫') inp.value = inp.value.slice(0, -1);
       else if (t === 'h') inp.value = `${inp.value.trim()} h `;
+      else if (t === '−') inp.value = inp.value.startsWith('−') ? inp.value.slice(1) : `−${inp.value}`; /* v6 : change le signe */
       else inp.value += t;
     }));
     /* v4 : comme dans MNEMOGRAM, la case est dans son propre petit formulaire, sans aucun champ de mot de passe :
@@ -2264,7 +2823,8 @@ function valideSaisie() {
   if (!brut) { montreIndice('Écris d\'abord ta réponse.'); return; }
   const val = q.saisie.type === 'minutes' ? lisMinutes(brut) : lisNombre(brut);
   if (Number.isNaN(val)) { montreIndice(q.saisie.type === 'minutes' ? 'Écris une heure, par exemple <strong>15 h 45</strong>.' : 'Écris seulement un nombre, par exemple <strong>56</strong> ou <strong>4,50</strong>.'); return; }
-  const juste = Math.abs(val - q.saisie.bonne) < 1e-9;
+  /* v6 : q.saisie.tol = l'écart permis (pour les calculs avec π arrondis) */
+  const juste = Math.abs(val - q.saisie.bonne) <= (q.saisie.tol || 1e-9);
   const montre = (v) => (q.saisie.type === 'minutes' ? fmtHeure(v) : fmtN(v));
   if (juste) { inp.value = montre(val); repondu(true); return; }
   erreur(montre(val));
