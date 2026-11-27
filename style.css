@@ -949,3 +949,12 @@ body[data-ambiance] .home-mode-button .desc { color:inherit; opacity:.85; }
 /* la mosaïque : le portrait de Luca Pacioli au centre, sur deux cases */
 .bg-tile.bg-centre { grid-column:2 / 4; grid-row:2; }
 @media (max-width:640px) { .bg-tile.bg-centre { grid-column:2; grid-row:2 / 4; } }
+
+/* v5 : quiz de cours, tableaux de proportionnalité, programmes du lutin, virgule dans le tableau des nombres */
+.mm-cours { display:block; font-size:.55em; letter-spacing:.12em; text-transform:uppercase; color:#ff9ec7; margin-bottom:8px; }
+.mm-tab { border-collapse:collapse; margin:14px auto 0; font-size:.9em; }
+.mm-tab td { border:2px solid rgba(244,241,230,.7); padding:6px 16px; min-width:2.4em; text-align:center; }
+.mm-prog { display:table; text-align:left; margin:10px auto; padding-left:1.6em; font-size:.85em; color:#9be59b; }
+.mm-prog li { margin:2px 0; }
+.tab-num .virg { border-left:4px solid var(--wrong); }
+.home-mode-button.quiz .label strong { color:#ffe066; }
